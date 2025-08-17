@@ -2,10 +2,15 @@ import { useEffect, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 import "./App.css";
 import Cell from "./components/Cell";
-import { CELL_SIZE, LAYOUT_SPACING } from "./constants";
+import { CELL_SIZE, LAYOUT_SPACING, MoveKeyCodes } from "./constants";
 import { useCellGridPositions } from "./hooks/useCellGridPositions";
 import type { ICell } from "./types";
-import { cn, getRandomTwoOrFour, getTwoRandomItems } from "./utils";
+import {
+  cn,
+  getRandomTwoOrFour,
+  getTwoRandomItems,
+  isValidMoveKey,
+} from "./utils";
 
 const COLUMNS = 4;
 
@@ -29,6 +34,23 @@ function App() {
         setCells(initCells);
       }
     }
+  }, []);
+
+  function onListenPressMoveBtn(event: KeyboardEvent) {
+    if (!isValidMoveKey(event.code)) return;
+    if (event.code === MoveKeyCodes.ArrowDown) {
+      // const updatetedCells = [...cells];
+      // cells.forEach(cell => {
+      // })
+    }
+  }
+
+  useEffect(() => {
+    document.addEventListener("keydown", onListenPressMoveBtn);
+
+    return () => {
+      document.removeEventListener("keydown", onListenPressMoveBtn);
+    };
   }, []);
 
   return (

@@ -29,6 +29,8 @@ export function useCellGridPositions({
       const position: IPosition = {
         top: layoutSpacing + distanceBetweenCell * curRow,
         left: layoutSpacing + distanceBetweenCell * currCol,
+        column: currCol,
+        row: curRow,
       };
       cellPositions.push(position);
       currCol++;

@@ -1,5 +1,6 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
+import { MoveKeyCodes } from "../constants";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(...inputs));
@@ -21,4 +22,13 @@ export function getTwoRandomItems<T>(arr: T[]): [T, T] | null {
 
 export function getRandomTwoOrFour(): 2 | 4 {
   return Math.random() < 0.1 ? 4 : 2;
+}
+
+export function isValidMoveKey(code: string) {
+  return (
+    code === MoveKeyCodes.ArrowDown ||
+    code === MoveKeyCodes.ArrowLeft ||
+    code === MoveKeyCodes.ArrowRight ||
+    code === MoveKeyCodes.ArrowUp
+  );
 }

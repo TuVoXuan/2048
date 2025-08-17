@@ -7,4 +7,6 @@ export interface ICell {
 export interface IPosition {
   top: number;
   left: number;
+  column: number;
+  row: number;
 }

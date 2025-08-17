@@ -2,37 +2,27 @@ import { CELL_SIZE } from "../constants";
 import type { ICell } from "../types";
 import { cn } from "../utils";
 
-export default function Cell({ value }: { value: ICell }) {
-  const getCellBgColor = (cellValue: number) => {
-    switch (cellValue) {
-      case 2:
-        return "bg-[#EFE4DA]";
-      case 4:
-        return "bg-[#EBD8B6]";
-      case 8:
-        return "bg-[#F3B178]";
-      case 16:
-        return "bg-[#F6925F]";
-      case 32:
-        return "bg-[#F77F64]";
-      case 64:
-        return "bg-[#F66543]";
-      case 128:
-        return "bg-[#F1D26A]";
-      default:
-        return "bg-[#F1D26A]";
-    }
-  };
+const cellBgColors: Record<number, string> = {
+  2: "bg-[#EFE4DA]",
+  4: "bg-[#EBD8B6]",
+  8: "bg-[#F3B178]",
+  16: "bg-[#F6925F]",
+  32: "bg-[#F77F64]",
+  64: "bg-[#F66543]",
+  128: "bg-[#F1D26A]",
+};
 
-  const getCellTextColor = (cellValue: number) => {
-    switch (cellValue) {
-      case 2:
-      case 4:
-        return "text-[#746452]";
-      default:
-        return "text-white";
-    }
-  };
+const cellTextColors: Record<number, string> = {
+  2: "text-[#746452]",
+  4: "text-[#746452]",
+};
+
+export default function Cell({ value }: { value: ICell }) {
+  const getCellBgColor = (cellValue: number) =>
+    cellBgColors[cellValue] || "bg-[#F1D26A]";
+
+  const getCellTextColor = (cellValue: number) =>
+    cellTextColors[cellValue] || "text-white";
 
   return (
     <div
