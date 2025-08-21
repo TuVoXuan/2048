@@ -10,3 +10,5 @@ export interface IPosition {
   column: number;
   row: number;
 }
+
+export type Direction = 'up' | 'down' | 'left' | 'right';

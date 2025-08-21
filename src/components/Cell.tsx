@@ -33,12 +33,15 @@ export default function Cell({ value }: { value: ICell }) {
         width: CELL_SIZE + "px",
       }}
       className={cn(
-        "select-none absolute h-20 w-20 rounded-lg shadow-md flex items-center justify-center font-semibold text-[38px]",
+        "select-none absolute h-20 w-20 rounded-lg shadow-md flex items-center justify-center font-semibold text-[38px] transition-all ease-in-out duration-500",
         getCellBgColor(value.value),
         getCellTextColor(value.value)
       )}
     >
       {value.value}
+      <span className="absolute top-2 left-2 text-black text-[10px]">
+        {value.id}
+      </span>
     </div>
   );
 }
