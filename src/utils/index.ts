@@ -40,7 +40,7 @@ export function findFrontCell(
   position: IPosition,
   direction: Direction
 ) {
-  const frontCell = cells.find((cell) => {
+  const frontCell = cells.findLast((cell) => {
     if (
       direction === "up" &&
       cell.position.column === position.column &&

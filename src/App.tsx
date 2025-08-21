@@ -172,6 +172,11 @@ function calculateMovedCells(
         );
       }
 
+      console.log("frontCell.id: ", frontCell?.id);
+      console.log("fontCell.position: ", frontCell?.position);
+      console.log("cell.id: ", cell.id);
+      console.log("newPosition: ", newPosition);
+      console.log("--------");
       if (newPosition) {
         movedCells.push({
           ...cell,
