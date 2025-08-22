@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import "./App.css";
 import Cell from "./components/Cell";
 import {
@@ -16,6 +16,8 @@ import {
   isValidMoveKey,
   sortFollowDirection,
 } from "./utils";
+import { AnimatePresence } from "motion/react";
+import useAppStore from "./store/AppStore";
 
 const defaultCells = [
   {
@@ -139,6 +141,7 @@ function calculateMovedCells(
         const foundedCell = movedCells.find((cell) => cell.id === frontCell.id);
         if (foundedCell) {
           foundedCell.value = foundedCell.value * 2;
+          frontCell.isMerging = true;
         }
       } else {
         // Move to position next to frontCell
@@ -198,8 +201,8 @@ function calculateMovedCells(
 }
 
 function App() {
-  // const { cells, setCells } = useAppStore();
-  const [cells, setCells] = useState<ICell[]>(defaultCells);
+  const { cells, updateAllCells } = useAppStore();
+  // const [cells, setCells] = useState<ICell[]>(defaultCells);
   const cellsRef = useRef<ICell[]>(defaultCells);
 
   useEffect(() => {
@@ -221,7 +224,7 @@ function App() {
         direction,
         cellGridPositions
       );
-      setCells(movedCells);
+      updateAllCells(movedCells);
     },
     [cellGridPositions]
   );
@@ -285,9 +288,11 @@ function App() {
           ></div>
         ))}
 
-        {cells.map((cell) => (
-          <Cell key={cell.id} value={cell} />
-        ))}
+        <AnimatePresence mode="popLayout">
+          {cells.map((cell) => (
+            <Cell key={cell.id} value={cell} />
+          ))}
+        </AnimatePresence>
       </section>
     </main>
   );

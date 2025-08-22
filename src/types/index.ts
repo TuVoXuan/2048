@@ -2,6 +2,7 @@ export interface ICell {
   id: string;
   value: number;
   position: IPosition;
+  isMerging?: boolean;
 }
 
 export interface IPosition {
