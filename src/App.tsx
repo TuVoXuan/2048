@@ -15,6 +15,7 @@ import {
   getCellPosition,
   getRandomItem,
   getRandomTwoOrFour,
+  getTwoRandomItems,
   isValidMoveKey,
   sortFollowDirection,
 } from "./utils";
@@ -164,6 +165,8 @@ function calculateMovedCells(
     } else {
       if (ableToMerge) {
         // Merge with the frontCell
+        //có thể thêm 1 biến nữa cho cho ô được merge, lưu dữ id của thằng frontCell xong khi update
+        //lại biến isMerging thì xoá cell đó đi.
         const foundedCell = movedCells.find((cell) => cell.id === frontCell.id);
         if (foundedCell) {
           foundedCell.value = foundedCell.value * 2;
@@ -284,17 +287,17 @@ function App() {
   );
 
   useEffect(() => {
-    // if (cellGridPositions.length > 0) {
-    //   const initRandomPosition = getTwoRandomItems(cellGridPositions);
-    //   if (initRandomPosition) {
-    //     const initCells = initRandomPosition.map((position) => ({
-    //       id: uuidv4(),
-    //       position: position,
-    //       value: getRandomTwoOrFour(),
-    //     }));
-    //     setCells(initCells);
-    //   }
-    // }
+    if (cellGridPositions.length > 0) {
+      const initRandomPosition = getTwoRandomItems(cellGridPositions);
+      if (initRandomPosition) {
+        const initCells = initRandomPosition.map((position) => ({
+          id: uuidv4(),
+          position: position,
+          value: getRandomTwoOrFour(),
+        }));
+        updateAllCells(initCells);
+      }
+    }
 
     document.addEventListener("keydown", onListenPressMoveBtn);
 

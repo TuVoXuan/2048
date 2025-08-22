@@ -61,7 +61,7 @@ interface IAppStore {
 }
 
 const useAppStore = create<IAppStore>((set) => ({
-  cells: defaultCells,
+  cells: [],
   updateAllCells: (cells) => set(() => ({cells: cells})),
   updateMergeState: (cellId, isMerging) => set((state) => {
     const foundCell = state.cells.find((item) => item.id === cellId);
