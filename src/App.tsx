@@ -76,10 +76,7 @@ function calculateMovedCells(
   direction: Direction,
   cellGridPositions: IPosition[]
 ): ICell[] {
-  console.log("cells: ", cells);
-
   const sortedCells = sortFollowDirection(cells, direction);
-  console.log("sortedCells: ", sortedCells);
   const movedCells: ICell[] = [];
 
   for (let i = 0; i < sortedCells.length; i++) {
@@ -90,6 +87,8 @@ function calculateMovedCells(
       cell.position,
       direction
     );
+
+    const ableToMerge = frontCell?.value === cell.value;
 
     if (!frontCell) {
       // Move to edge if possible
@@ -135,64 +134,66 @@ function calculateMovedCells(
         });
       }
     } else {
-      // Move to position next to frontCell (no merging)
-      let newPosition: IPosition | undefined;
-
-      if (direction === "down") {
-        newPosition = getCellPosition(
-          {
-            row: frontCell.position.row - 1,
-            column: frontCell.position.column,
-          },
-          cellGridPositions
-        );
-      } else if (direction === "up") {
-        newPosition = getCellPosition(
-          {
-            row: frontCell.position.row + 1,
-            column: frontCell.position.column,
-          },
-          cellGridPositions
-        );
-      } else if (direction === "left") {
-        newPosition = getCellPosition(
-          {
-            row: frontCell.position.row,
-            column: frontCell.position.column + 1,
-          },
-          cellGridPositions
-        );
-      } else if (direction === "right") {
-        newPosition = getCellPosition(
-          {
-            row: frontCell.position.row,
-            column: frontCell.position.column - 1,
-          },
-          cellGridPositions
-        );
-      }
-
-      console.log("frontCell.id: ", frontCell?.id);
-      console.log("fontCell.position: ", frontCell?.position);
-      console.log("cell.id: ", cell.id);
-      console.log("newPosition: ", newPosition);
-      console.log("--------");
-      if (newPosition) {
-        movedCells.push({
-          ...cell,
-          position: { ...newPosition },
-        });
+      if (ableToMerge) {
+        // Merge with the frontCell
+        const foundedCell = movedCells.find((cell) => cell.id === frontCell.id);
+        if (foundedCell) {
+          foundedCell.value = foundedCell.value * 2;
+        }
       } else {
-        // Fallback - keep current position
-        movedCells.push({
-          ...cell,
-          position: { ...cell.position },
-        });
+        // Move to position next to frontCell
+        let newPosition: IPosition | undefined;
+
+        if (direction === "down") {
+          newPosition = getCellPosition(
+            {
+              row: frontCell.position.row - 1,
+              column: frontCell.position.column,
+            },
+            cellGridPositions
+          );
+        } else if (direction === "up") {
+          newPosition = getCellPosition(
+            {
+              row: frontCell.position.row + 1,
+              column: frontCell.position.column,
+            },
+            cellGridPositions
+          );
+        } else if (direction === "left") {
+          newPosition = getCellPosition(
+            {
+              row: frontCell.position.row,
+              column: frontCell.position.column + 1,
+            },
+            cellGridPositions
+          );
+        } else if (direction === "right") {
+          newPosition = getCellPosition(
+            {
+              row: frontCell.position.row,
+              column: frontCell.position.column - 1,
+            },
+            cellGridPositions
+          );
+        }
+
+        if (newPosition) {
+          movedCells.push({
+            ...cell,
+            position: { ...newPosition },
+          });
+        } else {
+          // Fallback - keep current position
+          movedCells.push({
+            ...cell,
+            position: { ...cell.position },
+          });
+        }
       }
     }
   }
 
-  console.log("movedCells result: ", movedCells);
   return movedCells;
 }
 

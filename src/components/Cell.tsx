@@ -21,6 +21,9 @@ const cellTextColors: Record<number, string> = {
 
 export default function Cell({ value }: { value: ICell }) {
   const [hasMounted, setHasMounted] = useState(false);
+  // need to to find a way to tracking value of cell then when it is merged then trigger change
+  // value -> trigger animation
+  const [isValueChange, setIsValueChange] = useState<boolean>(false);
 
   useEffect(() => {
     // Small delay to ensure animation plays
@@ -28,11 +31,24 @@ export default function Cell({ value }: { value: ICell }) {
     return () => clearTimeout(timer);
   }, []);
 
+  useEffect(() => {
+    if (hasMounted) {
+      setIsValueChange(true);
+    }
+  }, [value.value]);
+
   const getCellBgColor = (cellValue: number) =>
     cellBgColors[cellValue] || "bg-[#F1D26A]";
 
   const getCellTextColor = (cellValue: number) =>
     cellTextColors[cellValue] || "text-white";
+
+  const handleAnimationComplete = () => {
+    // Reset isValueChange after animation completes
+    if (isValueChange) {
+      setIsValueChange(false);
+    }
+  };
 
   return (
     <motion.div
@@ -45,7 +61,7 @@ export default function Cell({ value }: { value: ICell }) {
       }}
       animate={{
         opacity: hasMounted ? 1 : 0,
-        scale: hasMounted ? 1 : 0,
+        scale: hasMounted ? (isValueChange ? 0 : 1) : 0,
         top: value.position.top + "px",
         left: value.position.left + "px",
       }}
@@ -53,10 +69,7 @@ export default function Cell({ value }: { value: ICell }) {
         type: "spring",
         duration: 0.3,
       }}
-      exit={{
-        opacity: 0,
-        scale: 0,
-      }}
+      onAnimationComplete={handleAnimationComplete}
       style={{
         height: CELL_SIZE + "px",
         width: CELL_SIZE + "px",
