@@ -13,11 +13,14 @@ import {
   cn,
   findFrontCell,
   getCellPosition,
+  getRandomItem,
+  getRandomTwoOrFour,
   isValidMoveKey,
   sortFollowDirection,
 } from "./utils";
 import { AnimatePresence } from "motion/react";
 import useAppStore from "./store/AppStore";
+import { v4 as uuidv4 } from "uuid";
 
 const defaultCells = [
   {
@@ -71,6 +74,29 @@ const defaultCells = [
     value: 2,
   },
 ];
+
+function handleCreateAddNewCell(
+  usedPositions: IPosition[],
+  cellGridPositions: IPosition[]
+): ICell | null {
+  const unusedPositions = cellGridPositions.filter(
+    (position) =>
+      !usedPositions.find(
+        (usedPosition) =>
+          usedPosition.column === position.column &&
+          usedPosition.row === position.row
+      )
+  );
+
+  const randomPosition = getRandomItem(unusedPositions);
+  const ramdomValue = getRandomTwoOrFour();
+  if (!randomPosition) return null;
+  return {
+    id: uuidv4(),
+    value: ramdomValue,
+    position: randomPosition,
+  };
+}
 
 // Extract the movement logic to a pure function
 function calculateMovedCells(
@@ -224,6 +250,15 @@ function App() {
         direction,
         cellGridPositions
       );
+
+      const newCell = handleCreateAddNewCell(
+        movedCells.map((cell) => cell.position),
+        cellGridPositions
+      );
+      if (newCell) {
+        movedCells.push(newCell);
+      }
+
       updateAllCells(movedCells);
     },
     [cellGridPositions]

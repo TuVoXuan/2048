@@ -22,6 +22,12 @@ export function getTwoRandomItems<T>(arr: T[]): [T, T] | null {
   return [arr[firstIndex], arr[secondIndex]];
 }
 
+export function getRandomItem<T>(arr: T[]): T|null {
+  if(arr.length === 0) return null;
+  const radomIndex = Math.floor(Math.random() * arr.length);
+  return arr[radomIndex]
+}
+
 export function getRandomTwoOrFour(): 2 | 4 {
   return Math.random() < 0.1 ? 4 : 2;
 }

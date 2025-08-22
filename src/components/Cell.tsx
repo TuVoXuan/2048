@@ -52,7 +52,7 @@ export default function Cell({
       }, mergeDelay);
       return () => clearTimeout(timer);
     }
-  }, [value.isMerging, mergeDelay]);
+  }, [value.isMerging, value.id, mergeDelay]);
 
   const getCellBgColor = (cellValue: number) =>
     cellBgColors[cellValue] || "bg-[#F1D26A]";
@@ -116,7 +116,7 @@ export default function Cell({
           getCellTextColor(value.value)
         )}
       >
-        {/* Background pulse effect during merge */}
+        {/* Background pulse effect during merge - for premium feature */}
         {showMergeEffect && (
           <motion.div
             initial={{ scale: 0, opacity: 0.8 }}
@@ -129,32 +129,35 @@ export default function Cell({
             )}
           />
         )}
-        {/* Sparkle effects */}
-        {/* <>
-        {[...Array(6)].map((_, i) => (
-          <motion.div
-            key={i}
-            initial={{
-              scale: 0,
-              opacity: 1,
-              x: 0,
-              y: 0,
-            }}
-            animate={{
-              scale: [0, 1, 0],
-              opacity: [1, 1, 0],
-              x: [0, Math.cos((i * 60 * Math.PI) / 180) * 30],
-              y: [0, Math.sin((i * 60 * Math.PI) / 180) * 30],
-            }}
-            transition={{
-              duration: 0.8,
-              delay: 0.1,
-              times: [0, 0.5, 1],
-            }}
-            className="absolute w-2 h-2 bg-red-400 rounded-full"
-          />
-        ))}
-      </> */}
+        {/* Sparkle effects - for premium feature */}
+        {/* {showMergeEffect && (
+          <>
+            {[...Array(6)].map((_, i) => (
+              <motion.div
+                key={i}
+                initial={{
+                  scale: 0,
+                  opacity: 1,
+                  x: 0,
+                  y: 0,
+                }}
+                animate={{
+                  scale: [0, 1, 0],
+                  opacity: [1, 1, 0],
+                  x: [0, Math.cos((i * 60 * Math.PI) / 180) * 40],
+                  y: [0, Math.sin((i * 60 * Math.PI) / 180) * 40],
+                }}
+                transition={{
+                  duration: 0.8,
+                  delay: 0.1,
+                  times: [0, 0.5, 1],
+                }}
+                className="absolute w-3 h-3 bg-[#F76644] rounded-full"
+              />
+            ))}
+          </>
+        )} */}
+
         {/* Number with bounce effect */}
         <motion.span
           animate={{
@@ -169,25 +172,6 @@ export default function Cell({
         >
           {value.value}
         </motion.span>
-
-        {/* Score popup effect */}
-        {showMergeEffect && (
-          <motion.div
-            initial={{ opacity: 0, y: 0, scale: 0.5 }}
-            animate={{ opacity: [0, 1, 1, 0], y: -40, scale: 1 }}
-            transition={{
-              duration: 1.2,
-              times: [0, 0.2, 0.8, 1],
-              ease: "easeOut",
-            }}
-            className="absolute -top-8 left-1/2 transform -translate-x-1/2 text-yellow-500 font-bold text-lg pointer-events-none z-20"
-          >
-            +{value.value}
-          </motion.div>
-        )}
-        <span className="absolute top-2 left-2 text-black text-[10px]">
-          {value.id}
-        </span>
       </motion.div>
     </AnimatePresence>
   );
