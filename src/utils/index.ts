@@ -1,6 +1,6 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
-import { MoveKeyCodes } from "../constants";
+import { MoveKeyCodes, SQUARE_GRID_SIZE } from "../constants";
 import type { Direction, ICell, IPosition } from "../types";
 
 
@@ -98,4 +98,140 @@ export function sortFollowDirection(cells: ICell[], direction: Direction) {
 
 export function getCellPosition({row, column}:{row: number, column: number}, cellGridPositions: IPosition[]) {
   return cellGridPositions.find((cellItem) => cellItem.column === column && cellItem.row === row);
+}
+
+// Extract the movement logic to a pure function
+export function calculateMovedCells(
+  cells: ICell[],
+  direction: Direction,
+  cellGridPositions: IPosition[]
+): ICell[] {
+  const sortedCells = sortFollowDirection(cells, direction);
+  const movedCells: ICell[] = [];
+
+  for (let i = 0; i < sortedCells.length; i++) {
+    const cell = sortedCells[i];
+
+    const frontCell = findFrontCell(
+      [...movedCells, ...sortedCells.slice(i + 1)],
+      cell.position,
+      direction
+    );
+
+    const ableToMerge =
+      frontCell?.value === cell.value && !frontCell.isMergingTo;
+
+    if (!frontCell) {
+      // Move to edge if possible
+      let newPosition: IPosition | undefined;
+
+      if (direction === "down" && cell.position.row !== SQUARE_GRID_SIZE - 1) {
+        newPosition = cellGridPositions.find(
+          (position) =>
+            position.column === cell.position.column &&
+            position.row === SQUARE_GRID_SIZE - 1
+        );
+      } else if (direction === "up" && cell.position.row !== 0) {
+        newPosition = cellGridPositions.find(
+          (position) =>
+            position.column === cell.position.column && position.row === 0
+        );
+      } else if (direction === "left" && cell.position.column !== 0) {
+        newPosition = cellGridPositions.find(
+          (position) =>
+            position.column === 0 && position.row === cell.position.row
+        );
+      } else if (
+        direction === "right" &&
+        cell.position.column !== SQUARE_GRID_SIZE - 1
+      ) {
+        newPosition = cellGridPositions.find(
+          (position) =>
+            position.column === SQUARE_GRID_SIZE - 1 &&
+            position.row === cell.position.row
+        );
+      }
+
+      if (newPosition) {
+        movedCells.push({
+          ...cell,
+          position: { ...newPosition },
+        });
+      } else {
+        // Cell can't move - keep in same position
+        movedCells.push({
+          ...cell,
+          position: { ...cell.position },
+        });
+      }
+    } else {
+      if (ableToMerge) {
+        // Merge with the frontCell
+        //có thể thêm 1 biến nữa cho cho ô được merge, lưu dữ id của thằng frontCell xong khi update
+        //lại biến isMerging thì xoá cell đó đi.
+        const foundedCell = movedCells.find((cell) => cell.id === frontCell.id);
+        if (foundedCell) {
+          foundedCell.value = foundedCell.value * 2;
+          frontCell.isMerging = true;
+        }
+        movedCells.push({
+          ...cell,
+          position: frontCell.position,
+          isMergingTo: true,
+        });
+      } else {
+        // Move to position next to frontCell
+        let newPosition: IPosition | undefined;
+
+        if (direction === "down") {
+          newPosition = getCellPosition(
+            {
+              row: frontCell.position.row - 1,
+              column: frontCell.position.column,
+            },
+            cellGridPositions
+          );
+        } else if (direction === "up") {
+          newPosition = getCellPosition(
+            {
+              row: frontCell.position.row + 1,
+              column: frontCell.position.column,
+            },
+            cellGridPositions
+          );
+        } else if (direction === "left") {
+          newPosition = getCellPosition(
+            {
+              row: frontCell.position.row,
+              column: frontCell.position.column + 1,
+            },
+            cellGridPositions
+          );
+        } else if (direction === "right") {
+          newPosition = getCellPosition(
+            {
+              row: frontCell.position.row,
+              column: frontCell.position.column - 1,
+            },
+            cellGridPositions
+          );
+        }
+
+        if (newPosition) {
+          movedCells.push({
+            ...cell,
+            position: { ...newPosition },
+          });
+        } else {
+          // Fallback - keep current position
+          movedCells.push({
+            ...cell,
+            position: { ...cell.position },
+          });
+        }
+      }
+    }
+  }
+
+  return movedCells;
 }

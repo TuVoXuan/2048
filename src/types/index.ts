@@ -3,6 +3,7 @@ export interface ICell {
   value: number;
   position: IPosition;
   isMerging?: boolean;
+  isMergingTo?: boolean
 }
 
 export interface IPosition {
