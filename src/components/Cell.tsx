@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { AnimatePresence, motion } from "motion/react";
 import { CELL_SIZE } from "../constants";
 import type { ICell } from "../types";
@@ -32,17 +33,14 @@ export default function Cell({
   const [showMergeEffect, setShowMergeEffect] = useState(false);
 
   useEffect(() => {
-    // Small delay to ensure animation plays
     const timer = setTimeout(() => setHasMounted(true), 50);
     return () => clearTimeout(timer);
   }, []);
 
   useEffect(() => {
     if (value.isMerging) {
-      // Delay the merge effect if specified
       const timer = setTimeout(() => {
         setShowMergeEffect(true);
-        // Reset after animation
         setTimeout(
           () => {
             setShowMergeEffect(false);
@@ -53,7 +51,13 @@ export default function Cell({
       }, mergeDelay);
       return () => clearTimeout(timer);
     }
-  }, [value.isMerging, value.id, mergeDelay]);
+  }, [
+    value.isMerging,
+    value.id,
+    mergeDelay,
+    showPulseEffectMerge,
+    updateMergeState,
+  ]);
 
   const getCellBgColor = (cellValue: number) =>
     cellBgColors[cellValue] || "bg-[#F1D26A]";
@@ -61,28 +65,112 @@ export default function Cell({
   const getCellTextColor = (cellValue: number) =>
     cellTextColors[cellValue] || "text-white";
 
-  const getFontsize = (cellValue: number) => {
-    if (cellValue < 1000) {
-      return "text-[38px]";
-    } else if (cellValue > 1000 && cellValue < 10000) {
-      return "text-[32px]";
-    } else if (cellValue > 10000 && cellValue < 100000) {
-      return "text-[25px]";
-    } else if (cellValue > 100000 && cellValue < 1000000) {
-      return "text-[20px]";
-    } else if (cellValue > 1000000 && cellValue < 10000000) {
-      return "text-[18px]";
-    } else {
-      return "text-[16px]";
-    }
+  const getFontSize = (cellValue: number) => {
+    if (cellValue < 1000) return "text-[38px]";
+    if (cellValue < 10000) return "text-[32px]";
+    if (cellValue < 100000) return "text-[25px]";
+    if (cellValue < 1000000) return "text-[20px]";
+    if (cellValue < 10000000) return "text-[18px]";
+    return "text-[16px]";
   };
 
-  //handle remove cell when isMergingTo === true when complete animation
-  function onAnimatedCompleteToRemove() {
+  const onAnimationCompleteToRemove = () => {
     if (value.isMergingTo) {
       removeCell(value.id);
     }
-  }
+  };
+
+  // Animation configurations
+  const getScaleAnimation = () => {
+    if (showMergeEffect) {
+      return showPulseEffectMerge ? [1, 1.3, 1.1, 1] : [1, 1.1, 1];
+    }
+    return hasMounted ? 1 : 0;
+  };
+
+  const getScaleTransition = () => {
+    if (showMergeEffect) {
+      return {
+        duration: showPulseEffectMerge ? 0.6 : 0.3,
+        times: [0, 0.4, 0.8, 1],
+        ease: "easeInOut",
+      };
+    }
+    return {
+      type: "spring",
+      damping: 15,
+      stiffness: 300,
+      duration: 0.3,
+    };
+  };
+
+  const getAnimateProps = () => {
+    const baseProps = {
+      opacity: hasMounted ? 1 : 0,
+      scale: getScaleAnimation(),
+      top: value.position.top + "px",
+      left: value.position.left + "px",
+    };
+
+    if (showPulseEffectMerge && showMergeEffect) {
+      return {
+        ...baseProps,
+        rotateZ: [0, 5, -5, 0],
+      };
+    }
+
+    return baseProps;
+  };
+
+  const getTransitionProps = () => {
+    const baseTransition = {
+      layout: {
+        duration: 0.25,
+        ease: "easeInOut",
+      },
+      scale: getScaleTransition(),
+      default: {
+        type: "spring",
+        duration: 0.3,
+      },
+    };
+
+    if (showMergeEffect) {
+      return {
+        ...baseTransition,
+        rotateZ: {
+          duration: 0.6,
+          ease: "easeInOut",
+        },
+      };
+    }
+
+    return baseTransition;
+  };
+
+  const renderNumberContent = () => {
+    const numberClassName = "relative z-10 font-bold";
+
+    if (showPulseEffectMerge) {
+      return (
+        <motion.span
+          animate={{
+            scale: showMergeEffect ? [1, 1.4, 1.2, 1] : 1,
+          }}
+          transition={{
+            duration: showMergeEffect ? 0.6 : 0,
+            times: [0, 0.4, 0.8, 1],
+            ease: "easeInOut",
+          }}
+          className={numberClassName}
+        >
+          {value.value}
+        </motion.span>
+      );
+    }
+
+    return <span className={numberClassName}>{value.value}</span>;
+  };
 
   return (
     <AnimatePresence>
@@ -96,61 +184,13 @@ export default function Cell({
           top: value.position.top + "px",
           left: value.position.left + "px",
         }}
-        animate={
-          showPulseEffectMerge
-            ? {
-                opacity: hasMounted ? 1 : 0,
-                scale: showMergeEffect ? [1, 1.3, 1.1, 1] : hasMounted ? 1 : 0,
-                top: value.position.top + "px",
-                left: value.position.left + "px",
-                rotateZ: showMergeEffect ? [0, 5, -5, 0] : 0,
-              }
-            : {
-                opacity: hasMounted ? 1 : 0,
-                scale: showMergeEffect ? [1, 1.1, 1] : hasMounted ? 1 : 0,
-                top: value.position.top + "px",
-                left: value.position.left + "px",
-              }
-        }
-        transition={{
-          layout: {
-            duration: 0.25,
-            ease: "easeInOut",
-          },
-          scale: showMergeEffect
-            ? showPulseEffectMerge
-              ? {
-                  duration: 0.6,
-                  times: [0, 0.4, 0.8, 1],
-                  ease: "easeInOut",
-                }
-              : {
-                  duration: 0.3,
-                  times: [0, 0.4, 0.8, 1],
-                  ease: "easeInOut",
-                }
-            : {
-                type: "spring",
-                damping: 15,
-                stiffness: 300,
-                duration: 0.3,
-              },
-          ...(showMergeEffect && {
-            rotateZ: {
-              duration: 0.6,
-              ease: "easeInOut",
-            },
-          }),
-          default: {
-            type: "spring",
-            duration: 0.3,
-          },
-        }}
+        animate={getAnimateProps()}
+        transition={getTransitionProps() as any}
         exit={{
           opacity: 0,
           scale: 0,
         }}
-        onAnimationComplete={onAnimatedCompleteToRemove}
+        onAnimationComplete={onAnimationCompleteToRemove}
         style={{
           height: CELL_SIZE + "px",
           width: CELL_SIZE + "px",
@@ -160,7 +200,7 @@ export default function Cell({
           "select-none absolute h-20 w-20 rounded-lg shadow-md flex items-center justify-center",
           getCellBgColor(value.value),
           getCellTextColor(value.value),
-          getFontsize(value.value)
+          getFontSize(value.value)
         )}
       >
         {/* Background pulse effect during merge - for premium feature */}
@@ -177,24 +217,7 @@ export default function Cell({
           />
         )}
 
-        {/* Number with bounce effect */}
-        {showPulseEffectMerge ? (
-          <motion.span
-            animate={{
-              scale: showMergeEffect ? [1, 1.4, 1.2, 1] : 1,
-            }}
-            transition={{
-              duration: showMergeEffect ? 0.6 : 0,
-              times: [0, 0.4, 0.8, 1],
-              ease: "easeInOut",
-            }}
-            className={"relative z-10 font-bold"}
-          >
-            {value.value}
-          </motion.span>
-        ) : (
-          <span className={"relative z-10 font-bold"}>{value.value}</span>
-        )}
+        {renderNumberContent()}
       </motion.div>
     </AnimatePresence>
   );
