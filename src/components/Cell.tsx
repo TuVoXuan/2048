@@ -28,9 +28,10 @@ export default function Cell({
   value: ICell;
   mergeDelay?: number;
 }) {
-  const { updateMergeState, removeCell, showPulseEffectMerge } = useAppStore();
+  const { updateMergeState, showPulseEffectMerge } = useAppStore();
   const [hasMounted, setHasMounted] = useState(false);
   const [showMergeEffect, setShowMergeEffect] = useState(false);
+  const [shouldHidden, setShouldHidden] = useState(false);
 
   useEffect(() => {
     const timer = setTimeout(() => setHasMounted(true), 50);
@@ -76,7 +77,7 @@ export default function Cell({
 
   const onAnimationCompleteToRemove = () => {
     if (value.isMergingTo) {
-      removeCell(value.id);
+      setShouldHidden(true);
     }
   };
 
@@ -200,7 +201,8 @@ export default function Cell({
           "select-none absolute h-20 w-20 rounded-lg shadow-md flex items-center justify-center",
           getCellBgColor(value.value),
           getCellTextColor(value.value),
-          getFontSize(value.value)
+          getFontSize(value.value),
+          shouldHidden && "!opacity-0"
         )}
       >
         {/* Background pulse effect during merge - for premium feature */}

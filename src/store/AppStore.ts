@@ -59,7 +59,6 @@ interface IAppStore {
   cells: ICell[],
   updateAllCells: (cells: ICell[]) => void,
   updateMergeState: (cellId: string, isMerging: boolean) => void,
-  removeCell: (cellId: string) => void,
   //state effect merge
   showPulseEffectMerge: boolean,
   setShowPulseEffectMerge: (value: boolean) => void
@@ -76,7 +75,6 @@ const useAppStore = create<IAppStore>((set) => ({
     
     return state;
   }),
-  removeCell: (cellId: string) => set((state) => ({cells: state.cells.filter((item) => item.id !== cellId)})),
   showPulseEffectMerge: false,
   setShowPulseEffectMerge: (value) => set(() => ({showPulseEffectMerge: value}))
 }))

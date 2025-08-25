@@ -18,6 +18,8 @@ import {
   getRandomItem,
   getRandomTwoOrFour,
   getTwoRandomItems,
+  isGameOver,
+  isMoveAble,
   isValidMoveKey,
 } from "./utils";
 
@@ -103,6 +105,10 @@ function App() {
 
   useEffect(() => {
     cellsRef.current = cells;
+
+    // if (cellsRef.current && isGameOver(cellsRef.current)) {
+    //   alert("Game over");
+    // }
   }, [cells]);
 
   const cellGridPositions = useCellGridPositions({
@@ -114,19 +120,24 @@ function App() {
   const handleMoveCells = useCallback(
     (direction: Direction) => {
       // Use ref to get current cells, calculate new state, then set it
-      const currentCells = cellsRef.current;
+      // filtering cell is merged from the previous step
+      const currentCells = cellsRef.current.filter((cell) => !cell.isMergingTo);
+
       const movedCells = calculateMovedCells(
         currentCells,
         direction,
         cellGridPositions
       );
 
-      const newCell = handleCreateAddNewCell(
-        movedCells.map((cell) => cell.position),
-        cellGridPositions
-      );
-      if (newCell) {
-        movedCells.push(newCell);
+      if (isMoveAble(currentCells, movedCells)) {
+        //Check if cells is moved then add new cell
+        const newCell = handleCreateAddNewCell(
+          movedCells.map((cell) => cell.position),
+          cellGridPositions
+        );
+        if (newCell) {
+          movedCells.push(newCell);
+        }
       }
 
       updateAllCells(movedCells);
@@ -134,24 +145,21 @@ function App() {
     [cellGridPositions]
   );
 
-  const onListenPressMoveBtn = useCallback(
-    (event: KeyboardEvent) => {
-      if (!isValidMoveKey(event.code)) return;
-      if (event.code === MoveKeyCodes.ArrowDown) {
-        handleMoveCells("down");
-      }
-      if (event.code === MoveKeyCodes.ArrowUp) {
-        handleMoveCells("up");
-      }
-      if (event.code === MoveKeyCodes.ArrowLeft) {
-        handleMoveCells("left");
-      }
-      if (event.code === MoveKeyCodes.ArrowRight) {
-        handleMoveCells("right");
-      }
-    },
-    [handleMoveCells]
-  );
+  const onListenPressMoveBtn = (event: KeyboardEvent) => {
+    if (!isValidMoveKey(event.code)) return;
+    if (event.code === MoveKeyCodes.ArrowDown) {
+      handleMoveCells("down");
+    }
+    if (event.code === MoveKeyCodes.ArrowUp) {
+      handleMoveCells("up");
+    }
+    if (event.code === MoveKeyCodes.ArrowLeft) {
+      handleMoveCells("left");
+    }
+    if (event.code === MoveKeyCodes.ArrowRight) {
+      handleMoveCells("right");
+    }
+  };
 
   useEffect(() => {
     if (cellGridPositions.length > 0) {
