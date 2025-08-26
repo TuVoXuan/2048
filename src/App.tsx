@@ -3,6 +3,7 @@ import { useCallback, useEffect, useRef } from "react";
 import { v4 as uuidv4 } from "uuid";
 import "./App.css";
 import Cell from "./components/Cell";
+import Header from "./components/Header";
 import {
   CELL_SIZE,
   LAYOUT_SPACING,
@@ -14,6 +15,7 @@ import useAppStore from "./store/AppStore";
 import type { Direction, ICell, IPosition } from "./types";
 import {
   calculateMovedCells,
+  calculateScore,
   cn,
   getRandomItem,
   getRandomTwoOrFour,
@@ -22,13 +24,12 @@ import {
   isMoveAble,
   isValidMoveKey,
 } from "./utils";
+import GameOver from "./components/GameOver";
 
 function handleCreateNewCell(
   usedPositions: IPosition[],
   cellGridPositions: IPosition[]
 ): ICell | null {
-  console.log("usedPositions: ", usedPositions);
-  console.log("-------");
   const unusedPositions = cellGridPositions.filter(
     (position) =>
       !usedPositions.find(
@@ -55,6 +56,9 @@ function App() {
     updateAllCells,
     isActionInProgress,
     setActionInProgress,
+    addScore,
+    gameOver,
+    setGameOver,
   } = useAppStore();
   const cellsRef = useRef<ICell[]>([]);
 
@@ -62,9 +66,9 @@ function App() {
     cellsRef.current = cells;
 
     if (cellsRef.current) {
-      const currentCell = cellsRef.current.filter((cell) => !cell.isMergingTo);
-      if (isGameOver(currentCell)) {
-        alert("Game over");
+      const currentCells = cellsRef.current.filter((cell) => !cell.isMergingTo);
+      if (isGameOver(currentCells)) {
+        setGameOver(true);
       }
     }
   }, [cells]);
@@ -89,7 +93,6 @@ function App() {
         direction,
         cellGridPositions
       );
-      console.log("movedCells: ", movedCells);
 
       if (isMoveAble(currentCells, movedCells)) {
         //Check if cells is moved then add new cell
@@ -102,6 +105,9 @@ function App() {
         }
       }
 
+      //filtering isMerging cells to calculate score
+      const score = calculateScore(movedCells.filter((cell) => cell.isMerging));
+      addScore(score);
       updateAllCells(movedCells);
 
       // Reset action in progress after a short delay to allow animations to complete
@@ -156,31 +162,35 @@ function App() {
   }, []);
 
   return (
-    <main className="bg-[#FAF8F0] h-screen w-full flex items-center justify-center font-family-rubik">
-      <section
-        style={{
-          gap: LAYOUT_SPACING + "px",
-          padding: LAYOUT_SPACING + "px",
-        }}
-        className={cn("relative bg-[#9C8B7C] grid grid-cols-4 rounded-xl")}
-      >
-        {new Array(16).fill(0).map((_, index) => (
-          <div
-            key={index}
-            style={{
-              height: CELL_SIZE + "px",
-              width: CELL_SIZE + "px",
-            }}
-            className={cn("bg-[#BDAC97] rounded-lg shadow-2xs")}
-          ></div>
-        ))}
-
-        <AnimatePresence mode="popLayout">
-          {cells.map((cell) => (
-            <Cell key={cell.id} value={cell} />
+    <main className="bg-[#FAF8F0] h-screen w-full font-family-rubik">
+      <div className="py-5 flex flex-col items-center gap-y-5 max-w-[1120px] mx-auto">
+        <Header />
+        <section
+          style={{
+            gap: LAYOUT_SPACING + "px",
+            padding: LAYOUT_SPACING + "px",
+          }}
+          className={cn("relative bg-[#9C8B7C] grid grid-cols-4 rounded-xl")}
+        >
+          {new Array(16).fill(0).map((_, index) => (
+            <div
+              key={index}
+              style={{
+                height: CELL_SIZE + "px",
+                width: CELL_SIZE + "px",
+              }}
+              className={cn("bg-[#BDAC97] rounded-lg shadow-2xs")}
+            ></div>
           ))}
-        </AnimatePresence>
-      </section>
+
+          <AnimatePresence mode="popLayout">
+            {cells.map((cell) => (
+              <Cell key={cell.id} value={cell} />
+            ))}
+          </AnimatePresence>
+        </section>
+      </div>
+      {gameOver && <GameOver />}
     </main>
   );
 }

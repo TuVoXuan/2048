@@ -2,16 +2,22 @@ import { create } from 'zustand'
 import type { ICell } from '../types'
 
 interface IAppStore {
-  //state cells
+  //State cells
   cells: ICell[],
   updateAllCells: (cells: ICell[]) => void,
   updateMergeState: (cellId: string, isMerging: boolean) => void,
-  //state effect merge
+  //State effect merge
   showPulseEffectMerge: boolean,
   setShowPulseEffectMerge: (value: boolean) => void,
-  //state action in progress
+  //State action in progress
   isActionInProgress: boolean,
   setActionInProgress: (value: boolean) => void
+  //State game Score
+  score: number;
+  addScore: (value: number) => void;
+  //State game over
+  gameOver: boolean;
+  setGameOver: (value: boolean) => void;
 }
 
 const useAppStore = create<IAppStore>((set) => ({
@@ -25,10 +31,19 @@ const useAppStore = create<IAppStore>((set) => ({
     
     return state;
   }),
-  showPulseEffectMerge: true,
+  showPulseEffectMerge: false,
   setShowPulseEffectMerge: (value) => set(() => ({showPulseEffectMerge: value})),
   isActionInProgress: false,
-  setActionInProgress: (value) => set(() => ({isActionInProgress: value}))
+  setActionInProgress: (value) => set(() => ({isActionInProgress: value})),
+  score: 0,
+  addScore: (value) => set((state) => ({score: state.score + value})),
+  gameOver: false,
+  setGameOver: (gameOver) => set(() => {
+    if(gameOver){
+      return ({gameOver: true})
+    }
+    return ({gameOver: false, cells: []})
+  })
 }))
 
 export default useAppStore;

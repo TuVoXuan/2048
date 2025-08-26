@@ -315,3 +315,8 @@ export function isGameOver(currCells: ICell[]) {
   }
   return true;
 }
+
+export function calculateScore(cells: ICell[]){
+  console.log('cells: ', cells);
+  return cells.reduce((pre, cur) => pre + cur.value, 0);
+}
