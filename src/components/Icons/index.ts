@@ -1,7 +1,9 @@
+import Code from './Code';
 import Menu from './Menu';
 
 const Icons = {
-  Menu
+  Menu,
+  Code
 }
 
 export default Icons

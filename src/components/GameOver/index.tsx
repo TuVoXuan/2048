@@ -1,12 +1,12 @@
 import { LAYOUT_SPACING, CELL_SIZE } from "@/constants";
-import { cn } from "@/utils";
 import { AnimatePresence, motion } from "motion/react";
 import Cell from "../Cell";
 import useAppStore from "@/store/AppStore";
 import { Button } from "../ui/button";
+import { cn } from "@/lib/utils";
 
 export default function GameOver() {
-  const { cells, setGameOver } = useAppStore();
+  const { cells, resetGame, score, bestScore, setBestScore } = useAppStore();
 
   return (
     <motion.div
@@ -25,7 +25,7 @@ export default function GameOver() {
             Game Over
           </h1>
           <p className="text-[#978876]">
-            1152 points scored in 125 moves.{" "}
+            {score} points scored in 125 moves.{" "}
             <span className="font-medium">No powerups used!</span>
           </p>
         </div>
@@ -59,7 +59,10 @@ export default function GameOver() {
           <Button
             className="w-[400px] bg-transparent border-[#9C8B7C] text-[#9C8B7C] font-normal hover:bg-transparent cursor-pointer"
             variant={"outline"}
-            onClick={() => setGameOver(false)}
+            onClick={() => {
+              resetGame();
+              if (score > bestScore) setBestScore(score);
+            }}
           >
             Play Again
           </Button>

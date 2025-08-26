@@ -3,28 +3,23 @@ import { useCallback, useEffect, useRef } from "react";
 import { v4 as uuidv4 } from "uuid";
 import "./App.css";
 import Cell from "./components/Cell";
+import GameOver from "./components/GameOver";
 import Header from "./components/Header";
-import {
-  CELL_SIZE,
-  LAYOUT_SPACING,
-  MoveKeyCodes,
-  SQUARE_GRID_SIZE,
-} from "./constants";
-import { useCellGridPositions } from "./hooks/useCellGridPositions";
+import { CELL_SIZE, LAYOUT_SPACING, MoveKeyCodes } from "./constants";
+import { useScreenWidth } from "./hooks/useScreenWidth";
+import { cn } from "./lib/utils";
 import useAppStore from "./store/AppStore";
 import type { Direction, ICell, IPosition } from "./types";
 import {
   calculateMovedCells,
   calculateScore,
-  cn,
   getRandomItem,
   getRandomTwoOrFour,
-  getTwoRandomItems,
   isGameOver,
   isMoveAble,
   isValidMoveKey,
 } from "./utils";
-import GameOver from "./components/GameOver";
+import Footer from "./components/Footer";
 
 function handleCreateNewCell(
   usedPositions: IPosition[],
@@ -59,8 +54,12 @@ function App() {
     addScore,
     gameOver,
     setGameOver,
+    setLayoutByWidth,
+    initGame,
+    cellGridPositions,
   } = useAppStore();
   const cellsRef = useRef<ICell[]>([]);
+  const screenWidth = useScreenWidth();
 
   useEffect(() => {
     cellsRef.current = cells;
@@ -72,12 +71,6 @@ function App() {
       }
     }
   }, [cells]);
-
-  const cellGridPositions = useCellGridPositions({
-    cellSize: CELL_SIZE,
-    columns: SQUARE_GRID_SIZE,
-    layoutSpacing: LAYOUT_SPACING,
-  });
 
   const handleMoveCells = useCallback(
     (direction: Direction) => {
@@ -142,17 +135,7 @@ function App() {
   };
 
   useEffect(() => {
-    if (cellGridPositions.length > 0) {
-      const initRandomPosition = getTwoRandomItems(cellGridPositions);
-      if (initRandomPosition) {
-        const initCells = initRandomPosition.map((position) => ({
-          id: uuidv4(),
-          position: position,
-          value: getRandomTwoOrFour(),
-        }));
-        updateAllCells(initCells);
-      }
-    }
+    initGame();
 
     document.addEventListener("keydown", onListenPressMoveBtn);
 
@@ -160,6 +143,10 @@ function App() {
       document.removeEventListener("keydown", onListenPressMoveBtn);
     };
   }, []);
+
+  useEffect(() => {
+    setLayoutByWidth(screenWidth);
+  }, [screenWidth]);
 
   return (
     <main className="bg-[#FAF8F0] h-screen w-full font-family-rubik">
@@ -189,6 +176,7 @@ function App() {
             ))}
           </AnimatePresence>
         </section>
+        <Footer />
       </div>
       {gameOver && <GameOver />}
     </main>

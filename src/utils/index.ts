@@ -1,12 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { clsx, type ClassValue } from "clsx";
-import { twMerge } from "tailwind-merge";
 import { MoveKeyCodes, SQUARE_GRID_SIZE } from "../constants";
 import type { Direction, ICell, IPosition } from "../types";
-
-export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(...inputs));
-}
 
 export function getTwoRandomItems<T>(arr: T[]): [T, T] | null {
   if (arr.length < 2) return null;

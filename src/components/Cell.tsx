@@ -2,9 +2,9 @@
 import { AnimatePresence, motion } from "motion/react";
 import { CELL_SIZE } from "../constants";
 import type { ICell } from "../types";
-import { cn } from "../utils";
 import { useEffect, useState } from "react";
 import useAppStore from "../store/AppStore";
+import { cn } from "@/lib/utils";
 
 const cellBgColors: Record<number, string> = {
   2: "bg-[#EFE4DA]",
