@@ -293,10 +293,6 @@ function cellArrayToGrid(cells: ICell[]): ICell[][] {
 
 //Check is game over
 export function isGameOver(currCells: ICell[]) {
-  console.log('currCells: ', currCells);
-  console.log('gridCells: ', cellArrayToGrid(currCells));
-  console.log('--------')
-
   if (currCells.length < SQUARE_GRID_SIZE * SQUARE_GRID_SIZE) {
     return false;
   }

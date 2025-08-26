@@ -23,63 +23,12 @@ import {
   isValidMoveKey,
 } from "./utils";
 
-const defaultCells = [
-  {
-    id: "a1",
-    position: {
-      top: 10,
-      left: 10,
-      column: 0,
-      row: 0,
-    },
-    value: 2,
-  },
-  {
-    id: "a2",
-    position: {
-      top: 10,
-      left: 100,
-      column: 1,
-      row: 0,
-    },
-    value: 4,
-  },
-  {
-    id: "a3",
-    position: {
-      top: 190,
-      left: 190,
-      column: 2,
-      row: 2,
-    },
-    value: 2,
-  },
-  {
-    id: "a4",
-    position: {
-      top: 280,
-      left: 280,
-      column: 3,
-      row: 3,
-    },
-    value: 4,
-  },
-  {
-    id: "a5",
-    position: {
-      top: 190,
-      left: 10,
-      column: 0,
-      row: 2,
-    },
-    value: 2,
-  },
-];
-
-function handleCreateAddNewCell(
+function handleCreateNewCell(
   usedPositions: IPosition[],
   cellGridPositions: IPosition[]
 ): ICell | null {
+  console.log("usedPositions: ", usedPositions);
+  console.log("-------");
   const unusedPositions = cellGridPositions.filter(
     (position) =>
       !usedPositions.find(
@@ -90,25 +39,34 @@ function handleCreateAddNewCell(
   );
 
   const randomPosition = getRandomItem(unusedPositions);
-  const ramdomValue = getRandomTwoOrFour();
+  const randomValue = getRandomTwoOrFour();
   if (!randomPosition) return null;
   return {
     id: uuidv4(),
-    value: ramdomValue,
+    value: randomValue,
     position: randomPosition,
   };
 }
 
 function App() {
-  const { cells, updateAllCells } = useAppStore();
-  const cellsRef = useRef<ICell[]>(defaultCells);
+  const {
+    cells,
+    showPulseEffectMerge,
+    updateAllCells,
+    isActionInProgress,
+    setActionInProgress,
+  } = useAppStore();
+  const cellsRef = useRef<ICell[]>([]);
 
   useEffect(() => {
     cellsRef.current = cells;
 
-    // if (cellsRef.current && isGameOver(cellsRef.current)) {
-    //   alert("Game over");
-    // }
+    if (cellsRef.current) {
+      const currentCell = cellsRef.current.filter((cell) => !cell.isMergingTo);
+      if (isGameOver(currentCell)) {
+        alert("Game over");
+      }
+    }
   }, [cells]);
 
   const cellGridPositions = useCellGridPositions({
@@ -119,6 +77,9 @@ function App() {
 
   const handleMoveCells = useCallback(
     (direction: Direction) => {
+      // Set action in progress to prevent new actions
+      setActionInProgress(true);
+
       // Use ref to get current cells, calculate new state, then set it
       // filtering cell is merged from the previous step
       const currentCells = cellsRef.current.filter((cell) => !cell.isMergingTo);
@@ -128,10 +89,11 @@ function App() {
         direction,
         cellGridPositions
       );
+      console.log("movedCells: ", movedCells);
 
       if (isMoveAble(currentCells, movedCells)) {
         //Check if cells is moved then add new cell
-        const newCell = handleCreateAddNewCell(
+        const newCell = handleCreateNewCell(
           movedCells.map((cell) => cell.position),
           cellGridPositions
         );
@@ -141,12 +103,24 @@ function App() {
       }
 
       updateAllCells(movedCells);
+
+      // Reset action in progress after a short delay to allow animations to complete
+      setTimeout(
+        () => {
+          setActionInProgress(false);
+        },
+        showPulseEffectMerge ? 600 : 300
+      ); // 150ms delay to allow for cell animations
     },
-    [cellGridPositions]
+    [cellGridPositions, setActionInProgress]
   );
 
   const onListenPressMoveBtn = (event: KeyboardEvent) => {
     if (!isValidMoveKey(event.code)) return;
+
+    // Prevent new actions if one is already in progress
+    if (isActionInProgress) return;
+
     if (event.code === MoveKeyCodes.ArrowDown) {
       handleMoveCells("down");
     }
