@@ -6,7 +6,8 @@ import { Button } from "../ui/button";
 import { cn } from "@/lib/utils";
 
 export default function GameOver() {
-  const { cells, resetGame, score, bestScore, setBestScore } = useAppStore();
+  const { cells, resetGame, score, bestScore, setBestScore, moves } =
+    useAppStore();
 
   return (
     <motion.div
@@ -25,7 +26,7 @@ export default function GameOver() {
             Game Over
           </h1>
           <p className="text-[#978876]">
-            {score} points scored in 125 moves.{" "}
+            {score} points scored in {moves} moves.{" "}
             <span className="font-medium">No powerups used!</span>
           </p>
         </div>

@@ -1,26 +1,32 @@
-import { create } from 'zustand'
-import type { ICell, IPosition } from '../types'
-import { computeCellGridPositions, type LayoutConfig } from '@/utils/computeCellGridPositions';
-import { getLayoutConfig } from '@/utils/getLayoutConfig';
-import { getRandomTwoOrFour, getTwoRandomItems } from '@/utils';
-import { v4 as uuidv4 } from 'uuid';
+import { create } from "zustand";
+import type { ICell, IPosition } from "../types";
+import {
+  computeCellGridPositions,
+  type LayoutConfig,
+} from "@/utils/computeCellGridPositions";
+import { getLayoutConfig } from "@/utils/getLayoutConfig";
+import { getRandomTwoOrFour, getTwoRandomItems } from "@/utils";
+import { v4 as uuidv4 } from "uuid";
 
 interface IAppStore {
   //State cells
-  cells: ICell[],
-  updateAllCells: (cells: ICell[]) => void,
-  updateMergeState: (cellId: string, isMerging: boolean) => void,
+  cells: ICell[];
+  updateAllCells: (cells: ICell[]) => void;
+  updateMergeState: (cellId: string, isMerging: boolean) => void;
   //State effect merge
-  showPulseEffectMerge: boolean,
-  setShowPulseEffectMerge: (value: boolean) => void,
+  showPulseEffectMerge: boolean;
+  setShowPulseEffectMerge: (value: boolean) => void;
   //State action in progress
-  isActionInProgress: boolean,
-  setActionInProgress: (value: boolean) => void
+  isActionInProgress: boolean;
+  setActionInProgress: (value: boolean) => void;
   //State game Score
   score: number;
   addScore: (value: number) => void;
   bestScore: number;
   setBestScore: (value: number) => void;
+  //State the number of moving
+  moves: number;
+  addMove: () => void;
   //State game over
   gameOver: boolean;
   setGameOver: (value: boolean) => void;
@@ -34,35 +40,42 @@ interface IAppStore {
 
 const useAppStore = create<IAppStore>((set, get) => ({
   cells: [],
-  updateAllCells: (cells) => set(() => ({cells: cells})),
-  updateMergeState: (cellId, isMerging) => set((state) => {
-    const foundCell = state.cells.find((item) => item.id === cellId);
-    if(foundCell){
-      foundCell.isMerging = isMerging
-    }
-    
-    return state;
-  }),
+  updateAllCells: (cells) => set(() => ({ cells: cells })),
+  updateMergeState: (cellId, isMerging) =>
+    set((state) => {
+      const foundCell = state.cells.find((item) => item.id === cellId);
+      if (foundCell) {
+        foundCell.isMerging = isMerging;
+      }
+
+      return state;
+    }),
   showPulseEffectMerge: false,
-  setShowPulseEffectMerge: (value) => set(() => ({showPulseEffectMerge: value})),
+  setShowPulseEffectMerge: (value) =>
+    set(() => ({ showPulseEffectMerge: value })),
   isActionInProgress: false,
-  setActionInProgress: (value) => set(() => ({isActionInProgress: value})),
+  setActionInProgress: (value) => set(() => ({ isActionInProgress: value })),
   score: 0,
-  addScore: (value) => set((state) => ({score: state.score + value})),
-  bestScore: parseInt(localStorage.getItem('bestScore') || '0'),
+  addScore: (value) => set((state) => ({ score: state.score + value })),
+  bestScore: parseInt(localStorage.getItem("bestScore") || "0"),
   setBestScore: (value: number) => {
-    set({bestScore: value})
-    localStorage.setItem('bestScore', value.toString());
+    set({ bestScore: value });
+    localStorage.setItem("bestScore", value.toString());
   },
+  moves: 0,
+  addMove: () => set((state) => ({ moves: state.moves++ })),
   gameOver: false,
-  setGameOver: (gameOver) => set(() => {
-    if(gameOver){
-      return ({gameOver: true})
-    }
-    return ({gameOver: false, cells: []})
-  }),
+  setGameOver: (gameOver) =>
+    set(() => {
+      if (gameOver) {
+        return { gameOver: true };
+      }
+      return { gameOver: false, cells: [] };
+    }),
   layout: getLayoutConfig(window.innerWidth),
-  cellGridPositions: computeCellGridPositions(getLayoutConfig(window.innerWidth)),
+  cellGridPositions: computeCellGridPositions(
+    getLayoutConfig(window.innerWidth)
+  ),
 
   setLayoutByWidth: (width) => {
     const layout = getLayoutConfig(width);
@@ -71,7 +84,9 @@ const useAppStore = create<IAppStore>((set, get) => ({
 
     // Remap existing cells to new absolute positions by row/column
     const remapped = cells.map((cell) => {
-      const pos = positions.find(p => p.row === cell.position.row && p.column === cell.position.column);
+      const pos = positions.find(
+        (p) => p.row === cell.position.row && p.column === cell.position.column
+      );
       return pos ? { ...cell, position: pos } : cell;
     });
 
@@ -97,9 +112,9 @@ const useAppStore = create<IAppStore>((set, get) => ({
   resetGame: () => {
     // If you want `setGameOver(false)` to also start a new game,
     // you can either call initGame() from here, or make setGameOver do it when false.
-    set({ gameOver: false, cells: [], score: 0 });
+    set({ gameOver: false, cells: [], score: 0, moves: 0 });
     get().initGame();
   },
-}))
+}));
 
 export default useAppStore;

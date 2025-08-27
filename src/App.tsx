@@ -57,6 +57,7 @@ function App() {
     setLayoutByWidth,
     initGame,
     cellGridPositions,
+    addMove,
   } = useAppStore();
   const cellsRef = useRef<ICell[]>([]);
   const screenWidth = useScreenWidth();
@@ -95,6 +96,7 @@ function App() {
         );
         if (newCell) {
           movedCells.push(newCell);
+          addMove();
         }
       }
 
