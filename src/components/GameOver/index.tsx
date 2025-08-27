@@ -1,13 +1,19 @@
-import { LAYOUT_SPACING, CELL_SIZE } from "@/constants";
+import { cn } from "@/lib/utils";
+import useAppStore from "@/store/AppStore";
 import { AnimatePresence, motion } from "motion/react";
 import Cell from "../Cell";
-import useAppStore from "@/store/AppStore";
 import { Button } from "../ui/button";
-import { cn } from "@/lib/utils";
 
 export default function GameOver() {
-  const { cells, resetGame, score, bestScore, setBestScore, moves } =
-    useAppStore();
+  const {
+    cells,
+    resetGame,
+    score,
+    bestScore,
+    setBestScore,
+    moves,
+    layout: { layoutSpacing, cellSize },
+  } = useAppStore();
 
   return (
     <motion.div
@@ -33,8 +39,8 @@ export default function GameOver() {
 
         <section
           style={{
-            gap: LAYOUT_SPACING + "px",
-            padding: LAYOUT_SPACING + "px",
+            gap: layoutSpacing + "px",
+            padding: layoutSpacing + "px",
           }}
           className={cn("relative bg-[#9C8B7C] grid grid-cols-4 rounded-xl")}
         >
@@ -42,8 +48,8 @@ export default function GameOver() {
             <div
               key={index}
               style={{
-                height: CELL_SIZE + "px",
-                width: CELL_SIZE + "px",
+                height: cellSize + "px",
+                width: cellSize + "px",
               }}
               className={cn("bg-[#BDAC97] rounded-lg shadow-2xs")}
             ></div>

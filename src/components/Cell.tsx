@@ -1,10 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { cn } from "@/lib/utils";
 import { AnimatePresence, motion } from "motion/react";
-import { CELL_SIZE } from "../constants";
-import type { ICell } from "../types";
 import { useEffect, useState } from "react";
 import useAppStore from "../store/AppStore";
-import { cn } from "@/lib/utils";
+import type { ICell } from "../types";
 
 const cellBgColors: Record<number, string> = {
   2: "bg-[#EFE4DA]",
@@ -28,7 +27,11 @@ export default function Cell({
   value: ICell;
   mergeDelay?: number;
 }) {
-  const { updateMergeState, showPulseEffectMerge } = useAppStore();
+  const {
+    updateMergeState,
+    showPulseEffectMerge,
+    layout: { cellSize },
+  } = useAppStore();
   const [hasMounted, setHasMounted] = useState(false);
   const [showMergeEffect, setShowMergeEffect] = useState(false);
   const [shouldHidden, setShouldHidden] = useState(false);
@@ -193,8 +196,8 @@ export default function Cell({
         }}
         onAnimationComplete={onAnimationCompleteToRemove}
         style={{
-          height: CELL_SIZE + "px",
-          width: CELL_SIZE + "px",
+          height: cellSize + "px",
+          width: cellSize + "px",
           zIndex: showMergeEffect ? 10 : 1,
         }}
         className={cn(

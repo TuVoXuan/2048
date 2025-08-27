@@ -3,9 +3,10 @@ import { useCallback, useEffect, useRef } from "react";
 import { v4 as uuidv4 } from "uuid";
 import "./App.css";
 import Cell from "./components/Cell";
+import Footer from "./components/Footer";
 import GameOver from "./components/GameOver";
 import Header from "./components/Header";
-import { CELL_SIZE, LAYOUT_SPACING, MoveKeyCodes } from "./constants";
+import { MoveKeyCodes } from "./constants";
 import { useScreenWidth } from "./hooks/useScreenWidth";
 import { cn } from "./lib/utils";
 import useAppStore from "./store/AppStore";
@@ -19,7 +20,8 @@ import {
   isMoveAble,
   isValidMoveKey,
 } from "./utils";
-import Footer from "./components/Footer";
+import PowerUpsButton from "./components/PowerUpButton";
+import Icons from "./components/Icons";
 
 function handleCreateNewCell(
   usedPositions: IPosition[],
@@ -54,6 +56,7 @@ function App() {
     addScore,
     gameOver,
     setGameOver,
+    layout,
     setLayoutByWidth,
     initGame,
     cellGridPositions,
@@ -156,8 +159,8 @@ function App() {
         <Header />
         <section
           style={{
-            gap: LAYOUT_SPACING + "px",
-            padding: LAYOUT_SPACING + "px",
+            gap: layout.layoutSpacing + "px",
+            padding: layout.layoutSpacing + "px",
           }}
           className={cn("relative bg-[#9C8B7C] grid grid-cols-4 rounded-xl")}
         >
@@ -165,8 +168,8 @@ function App() {
             <div
               key={index}
               style={{
-                height: CELL_SIZE + "px",
-                width: CELL_SIZE + "px",
+                height: layout.cellSize + "px",
+                width: layout.cellSize + "px",
               }}
               className={cn("bg-[#BDAC97] rounded-lg shadow-2xs")}
             ></div>
@@ -178,6 +181,27 @@ function App() {
             ))}
           </AnimatePresence>
         </section>
+
+        <div className="flex items-center gap-x-3 p-3 rounded-[22px] bg-[#eae7d9]">
+          <PowerUpsButton
+            title="undo"
+            icon={<Icons.Back />}
+            remainingTurns={2}
+            tileValueToGetUse={128}
+          />
+          <PowerUpsButton
+            title="swap two tiles"
+            icon={<Icons.Swap />}
+            remainingTurns={1}
+            tileValueToGetUse={256}
+          />
+          <PowerUpsButton
+            title="delete tiles by number"
+            icon={<Icons.DeleteTile />}
+            remainingTurns={0}
+            tileValueToGetUse={512}
+          />
+        </div>
         <Footer />
       </div>
       {gameOver && <GameOver />}
