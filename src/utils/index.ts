@@ -1,12 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { clsx, type ClassValue } from "clsx";
-import { twMerge } from "tailwind-merge";
 import { MoveKeyCodes, SQUARE_GRID_SIZE } from "../constants";
 import type { Direction, ICell, IPosition } from "../types";
-
-export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(...inputs));
-}
 
 export function getTwoRandomItems<T>(arr: T[]): [T, T] | null {
   if (arr.length < 2) return null;
@@ -293,10 +287,6 @@ function cellArrayToGrid(cells: ICell[]): ICell[][] {
 
 //Check is game over
 export function isGameOver(currCells: ICell[]) {
-  console.log('currCells: ', currCells);
-  console.log('gridCells: ', cellArrayToGrid(currCells));
-  console.log('--------')
-
   if (currCells.length < SQUARE_GRID_SIZE * SQUARE_GRID_SIZE) {
     return false;
   }
@@ -318,4 +308,9 @@ export function isGameOver(currCells: ICell[]) {
     }
   }
   return true;
+}
+
+export function calculateScore(cells: ICell[]){
+  console.log('cells: ', cells);
+  return cells.reduce((pre, cur) => pre + cur.value, 0);
 }

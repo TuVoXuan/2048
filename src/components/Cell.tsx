@@ -2,9 +2,9 @@
 import { AnimatePresence, motion } from "motion/react";
 import { CELL_SIZE } from "../constants";
 import type { ICell } from "../types";
-import { cn } from "../utils";
 import { useEffect, useState } from "react";
 import useAppStore from "../store/AppStore";
+import { cn } from "@/lib/utils";
 
 const cellBgColors: Record<number, string> = {
   2: "bg-[#EFE4DA]",
@@ -67,12 +67,12 @@ export default function Cell({
     cellTextColors[cellValue] || "text-white";
 
   const getFontSize = (cellValue: number) => {
-    if (cellValue < 1000) return "text-[38px]";
-    if (cellValue < 10000) return "text-[32px]";
-    if (cellValue < 100000) return "text-[25px]";
-    if (cellValue < 1000000) return "text-[20px]";
-    if (cellValue < 10000000) return "text-[18px]";
-    return "text-[16px]";
+    if (cellValue < 1000) return "text-[42px]";
+    if (cellValue < 10000) return "text-[36px]";
+    if (cellValue < 100000) return "text-[29px]";
+    if (cellValue < 1000000) return "text-[24px]";
+    if (cellValue < 10000000) return "text-[22px]";
+    return "text-[20px]";
   };
 
   const onAnimationCompleteToRemove = () => {
