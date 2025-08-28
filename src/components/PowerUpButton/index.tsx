@@ -5,21 +5,32 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 interface PowerUpsButtonProps {
   title: string;
   icon: React.ReactNode;
-  remainingTurns: number;
+  remainingUses: number;
   tileValueToGetUse: number;
+  active?: boolean;
+  onClick?: () => void;
 }
 
 export default function PowerUpsButton({
   title,
   icon,
-  remainingTurns,
+  remainingUses,
   tileValueToGetUse,
+  active,
+  onClick,
 }: PowerUpsButtonProps) {
   return (
     <Tooltip>
-      <TooltipTrigger>
+      <TooltipTrigger asChild>
         <div className="flex flex-col gap-y-2 items-center">
-          <button className="cursor-pointer disabled:cursor-default h-12 w-12 rounded-[10px] flex items-center justify-center bg-[#baac9a]/30 text-white">
+          <button
+            onClick={onClick}
+            disabled={!active}
+            className={cn(
+              "cursor-pointer disabled:cursor-default h-12 w-12 rounded-[10px] flex items-center justify-center text-white",
+              active ? "bg-[#baac9a]" : "bg-[#baac9a]/30"
+            )}
+          >
             {icon}
           </button>
           <div className="px-[6px] flex items-center gap-x-1 w-full">
@@ -28,7 +39,7 @@ export default function PowerUpsButton({
                 key={uuidv4()}
                 className={cn(
                   "h-[3px] flex-1 rounded-full",
-                  remainingTurns >= index + 1
+                  remainingUses >= index + 1
                     ? "bg-[#A79B8B]"
                     : "bg-[#A79B8B]/30"
                 )}
@@ -46,7 +57,7 @@ export default function PowerUpsButton({
           <span className="uppercase font-semibold inline-block mr-2">
             {title}
           </span>
-          <span>{remainingTurns} uses left</span>
+          <span>{remainingUses} uses left</span>
         </div>
         <p className="text-white/80 text-xs font-light font-family-rubik">
           Make a {tileValueToGetUse} tile to get more uses

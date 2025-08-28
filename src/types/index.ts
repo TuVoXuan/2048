@@ -2,6 +2,8 @@ export interface ICell {
   id: string;
   value: number;
   position: IPosition;
+  //store old position for the history move
+  oldPosition?: IPosition,
   isMerging?: boolean;
   isMergingTo?: boolean
 }
@@ -11,6 +13,13 @@ export interface IPosition {
   left: number;
   column: number;
   row: number;
+}
+
+export interface IPowerUp {
+  name: string,
+  maxUses: number,
+  remainingUse: number,
+  tileToGetUse: number
 }
 
 export type Direction = 'up' | 'down' | 'left' | 'right';

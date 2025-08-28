@@ -6,6 +6,7 @@ import Cell from "./components/Cell";
 import Footer from "./components/Footer";
 import GameOver from "./components/GameOver";
 import Header from "./components/Header";
+import PowerUpButtonGroup from "./components/PowerUpButtonGroup";
 import { MoveKeyCodes } from "./constants";
 import { useScreenWidth } from "./hooks/useScreenWidth";
 import { cn } from "./lib/utils";
@@ -20,8 +21,6 @@ import {
   isMoveAble,
   isValidMoveKey,
 } from "./utils";
-import PowerUpsButton from "./components/PowerUpButton";
-import Icons from "./components/Icons";
 
 function handleCreateNewCell(
   usedPositions: IPosition[],
@@ -61,6 +60,7 @@ function App() {
     initGame,
     cellGridPositions,
     addMove,
+    addHistory,
   } = useAppStore();
   const cellsRef = useRef<ICell[]>([]);
   const screenWidth = useScreenWidth();
@@ -98,8 +98,11 @@ function App() {
           cellGridPositions
         );
         if (newCell) {
+          console.log("movedCells: ", movedCells);
+          console.log("cellRef: ", cellsRef.current);
           movedCells.push(newCell);
           addMove();
+          addHistory(cellsRef.current);
         }
       }
 
@@ -182,26 +185,7 @@ function App() {
           </AnimatePresence>
         </section>
 
-        <div className="flex items-center gap-x-3 p-3 rounded-[22px] bg-[#eae7d9]">
-          <PowerUpsButton
-            title="undo"
-            icon={<Icons.Back />}
-            remainingTurns={2}
-            tileValueToGetUse={128}
-          />
-          <PowerUpsButton
-            title="swap two tiles"
-            icon={<Icons.Swap />}
-            remainingTurns={1}
-            tileValueToGetUse={256}
-          />
-          <PowerUpsButton
-            title="delete tiles by number"
-            icon={<Icons.DeleteTile />}
-            remainingTurns={0}
-            tileValueToGetUse={512}
-          />
-        </div>
+        <PowerUpButtonGroup />
         <Footer />
       </div>
       {gameOver && <GameOver />}

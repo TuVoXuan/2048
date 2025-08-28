@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import type { ICell, IPosition } from "../types";
+import type { ICell, IPosition, IPowerUp } from "../types";
 import {
   computeCellGridPositions,
   type LayoutConfig,
@@ -7,6 +7,28 @@ import {
 import { getLayoutConfig } from "@/utils/getLayoutConfig";
 import { getRandomTwoOrFour, getTwoRandomItems } from "@/utils";
 import { v4 as uuidv4 } from "uuid";
+import { FixedSizeStack } from "@/classes/FixedSizeStack";
+
+const initPowerUps = {
+  undo: {
+    name: 'undo',
+    maxUses: 2,
+    remainingUse: 2,
+    tileToGetUse: 128
+  },
+  swapTwoTiles: {
+    name: 'swap two tiles',
+    maxUses: 2,
+    remainingUse: 1,
+    tileToGetUse: 256
+  },
+  deleteTilesByNumber: {
+    name: 'delete tiles by number',
+    maxUses: 2,
+    remainingUse: 0,
+    tileToGetUse: 512
+  }
+}
 
 interface IAppStore {
   //State cells
@@ -27,6 +49,7 @@ interface IAppStore {
   //State the number of moving
   moves: number;
   addMove: () => void;
+  minusMove: () => void;
   //State game over
   gameOver: boolean;
   setGameOver: (value: boolean) => void;
@@ -36,11 +59,20 @@ interface IAppStore {
   setLayoutByWidth: (width: number) => void;
   initGame: () => void;
   resetGame: () => void;
+  //State game power up
+  gameHistories: FixedSizeStack<ICell[]>;
+  addHistory: (cells: ICell[]) => void;
+  removeLastHistory: () => void;
+  powerUps: {
+    undo: IPowerUp,
+    swapTwoTiles: IPowerUp,
+    deleteTilesByNumber: IPowerUp
+  }
 }
 
 const useAppStore = create<IAppStore>((set, get) => ({
   cells: [],
-  updateAllCells: (cells) => set(() => ({ cells: cells })),
+  updateAllCells: (nCells) => set({ cells: nCells }),
   updateMergeState: (cellId, isMerging) =>
     set((state) => {
       const foundCell = state.cells.find((item) => item.id === cellId);
@@ -64,6 +96,7 @@ const useAppStore = create<IAppStore>((set, get) => ({
   },
   moves: 0,
   addMove: () => set((state) => ({ moves: state.moves++ })),
+  minusMove: () => set((state) => ({moves: state.moves--})),
   gameOver: false,
   setGameOver: (gameOver) =>
     set(() => {
@@ -115,6 +148,18 @@ const useAppStore = create<IAppStore>((set, get) => ({
     set({ gameOver: false, cells: [], score: 0, moves: 0 });
     get().initGame();
   },
+  gameHistories: new FixedSizeStack<ICell[]>(2),
+  addHistory: (cells) => {
+    const {gameHistories} = get();
+    gameHistories.push(cells);
+    set({gameHistories: gameHistories})
+  },
+  removeLastHistory: () =>{
+    const {gameHistories} = get();
+    gameHistories.pop();
+    set({gameHistories: gameHistories})
+  },
+  powerUps: initPowerUps,
 }));
 
 export default useAppStore;
