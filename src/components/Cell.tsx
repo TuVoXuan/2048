@@ -108,7 +108,7 @@ export default function Cell({
 
   const getAnimateProps = () => {
     const baseProps = {
-      opacity: hasMounted ? (shouldHidden ? 0 : 1) : 0,
+      opacity: hasMounted ? 1 : 0,
       scale: getScaleAnimation(),
       top: value.position.top + "px",
       left: value.position.left + "px",
@@ -202,7 +202,8 @@ export default function Cell({
           "select-none absolute h-20 w-20 rounded-lg shadow-md flex items-center justify-center",
           getCellBgColor(value.value),
           getCellTextColor(value.value),
-          getFontSize(value.value)
+          getFontSize(value.value),
+          shouldHidden && "!opacity-0"
         )}
       >
         {/* Background pulse effect during merge - for premium feature */}
