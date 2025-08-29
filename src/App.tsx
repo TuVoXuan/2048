@@ -20,6 +20,7 @@ import {
   isGameOver,
   isMoveAble,
   isValidMoveKey,
+  updateLastPositionOfMergedCell,
 } from "./utils";
 
 function handleCreateNewCell(
@@ -98,11 +99,13 @@ function App() {
           cellGridPositions
         );
         if (newCell) {
-          console.log("movedCells: ", movedCells);
-          console.log("cellRef: ", cellsRef.current);
           movedCells.push(newCell);
           addMove();
-          addHistory(cellsRef.current);
+          const updatedLastCell = updateLastPositionOfMergedCell(
+            movedCells,
+            cellsRef.current
+          );
+          addHistory(updatedLastCell);
         }
       }
 
@@ -143,7 +146,7 @@ function App() {
   };
 
   useEffect(() => {
-    initGame();
+    // initGame();
 
     document.addEventListener("keydown", onListenPressMoveBtn);
 
@@ -153,7 +156,7 @@ function App() {
   }, []);
 
   useEffect(() => {
-    setLayoutByWidth(screenWidth);
+    // setLayoutByWidth(screenWidth);
   }, [screenWidth]);
 
   return (

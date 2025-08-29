@@ -9,32 +9,62 @@ import { getRandomTwoOrFour, getTwoRandomItems } from "@/utils";
 import { v4 as uuidv4 } from "uuid";
 import { FixedSizeStack } from "@/classes/FixedSizeStack";
 
+const testDefaultCell = [
+  {
+    id: "563e3a27-bc1d-444f-9d45-d65ded8e00e0",
+    position: {
+      top: 310,
+      left: 110,
+      column: 1,
+      row: 3,
+    },
+    value: 2,
+  },
+  {
+    id: "c69fbcc0-c8f5-4360-97dc-c12a78f08522",
+    position: {
+      top: 10,
+      left: 110,
+      column: 1,
+      row: 0,
+    },
+    value: 2,
+    lastPosition: {
+      top: 310,
+      left: 110,
+      column: 1,
+      row: 3,
+    },
+  },
+];
+
 const initPowerUps = {
   undo: {
-    name: 'undo',
+    name: "undo",
     maxUses: 2,
     remainingUse: 2,
-    tileToGetUse: 128
+    tileToGetUse: 128,
   },
   swapTwoTiles: {
-    name: 'swap two tiles',
+    name: "swap two tiles",
     maxUses: 2,
     remainingUse: 1,
-    tileToGetUse: 256
+    tileToGetUse: 256,
   },
   deleteTilesByNumber: {
-    name: 'delete tiles by number',
+    name: "delete tiles by number",
     maxUses: 2,
     remainingUse: 0,
-    tileToGetUse: 512
-  }
-}
+    tileToGetUse: 512,
+  },
+};
 
 interface IAppStore {
   //State cells
   cells: ICell[];
   updateAllCells: (cells: ICell[]) => void;
   updateMergeState: (cellId: string, isMerging: boolean) => void;
+  removeOldPosition: (cellId: string) => void;
   //State effect merge
   showPulseEffectMerge: boolean;
   setShowPulseEffectMerge: (value: boolean) => void;
@@ -64,14 +94,14 @@ interface IAppStore {
   addHistory: (cells: ICell[]) => void;
   removeLastHistory: () => void;
   powerUps: {
-    undo: IPowerUp,
-    swapTwoTiles: IPowerUp,
-    deleteTilesByNumber: IPowerUp
-  }
+    undo: IPowerUp;
+    swapTwoTiles: IPowerUp;
+    deleteTilesByNumber: IPowerUp;
+  };
 }
 
 const useAppStore = create<IAppStore>((set, get) => ({
-  cells: [],
+  cells: testDefaultCell,
   updateAllCells: (nCells) => set({ cells: nCells }),
   updateMergeState: (cellId, isMerging) =>
     set((state) => {
@@ -82,6 +112,15 @@ const useAppStore = create<IAppStore>((set, get) => ({
 
       return state;
     }),
+  removeOldPosition: (cellId) => {
+    const { cells } = get();
+    const foundCell = cells.find((item) => item.id === cellId);
+    if (foundCell && foundCell.lastPosition) {
+      foundCell.position = foundCell.lastPosition;
+      foundCell.lastPosition = undefined;
+    }
+    set({ cells: cells });
+  },
   showPulseEffectMerge: false,
   setShowPulseEffectMerge: (value) =>
     set(() => ({ showPulseEffectMerge: value })),
@@ -96,7 +135,7 @@ const useAppStore = create<IAppStore>((set, get) => ({
   },
   moves: 0,
   addMove: () => set((state) => ({ moves: state.moves++ })),
-  minusMove: () => set((state) => ({moves: state.moves--})),
+  minusMove: () => set((state) => ({ moves: state.moves-- })),
   gameOver: false,
   setGameOver: (gameOver) =>
     set(() => {
@@ -150,14 +189,14 @@ const useAppStore = create<IAppStore>((set, get) => ({
   },
   gameHistories: new FixedSizeStack<ICell[]>(2),
   addHistory: (cells) => {
-    const {gameHistories} = get();
+    const { gameHistories } = get();
     gameHistories.push(cells);
-    set({gameHistories: gameHistories})
+    set({ gameHistories: gameHistories });
   },
-  removeLastHistory: () =>{
-    const {gameHistories} = get();
+  removeLastHistory: () => {
+    const { gameHistories } = get();
     gameHistories.pop();
-    set({gameHistories: gameHistories})
+    set({ gameHistories: gameHistories });
   },
   powerUps: initPowerUps,
 }));

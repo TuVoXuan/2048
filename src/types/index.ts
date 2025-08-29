@@ -3,7 +3,7 @@ export interface ICell {
   value: number;
   position: IPosition;
   //store old position for the history move
-  oldPosition?: IPosition,
+  lastPosition?: IPosition,
   isMerging?: boolean;
   isMergingTo?: boolean
 }

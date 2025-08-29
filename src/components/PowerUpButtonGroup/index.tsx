@@ -12,6 +12,7 @@ export default function PowerUpButtonGroup() {
   } = useAppStore();
 
   function handleUndo() {
+    console.log("gameHistories: ", gameHistories.value);
     const lastMovedCells = gameHistories.pop();
     if (lastMovedCells) {
       console.log("lastMovedCells:", lastMovedCells);

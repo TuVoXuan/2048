@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { MoveKeyCodes, SQUARE_GRID_SIZE } from "../constants";
 import type { Direction, ICell, IPosition } from "../types";
+import {cloneDeep} from 'lodash'
 
 export function getTwoRandomItems<T>(arr: T[]): [T, T] | null {
   if (arr.length < 2) return null;
@@ -312,4 +313,18 @@ export function isGameOver(currCells: ICell[]) {
 
 export function calculateScore(cells: ICell[]){
   return cells.reduce((pre, cur) => pre + cur.value, 0);
+}
+
+export function updateLastPositionOfMergedCell(currCells: ICell[], lastCells: ICell[]) {
+  const clonedLastCells = cloneDeep(lastCells);
+  currCells.forEach((curCell) => {
+    if(curCell.isMergingTo){
+      const foundedCell = clonedLastCells.find((cell) => cell.id === curCell.id);
+      if(foundedCell){
+        foundedCell.lastPosition = curCell.position;
+      }
+    }
+  })
+  
+  return clonedLastCells;
 }
