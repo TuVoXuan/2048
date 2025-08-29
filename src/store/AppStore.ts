@@ -18,24 +18,18 @@ const testDefaultCell = [
       column: 1,
       row: 3,
     },
-    value: 2,
+    value: 4,
   },
-  {
-    id: "c69fbcc0-c8f5-4360-97dc-c12a78f08522",
-    position: {
-      top: 10,
-      left: 110,
-      column: 1,
-      row: 0,
-    },
-    value: 2,
-    lastPosition: {
-      top: 310,
-      left: 110,
-      column: 1,
-      row: 3,
-    },
-  },
+  // {
+  //   id: "c69fbcc0-c8f5-4360-97dc-c12a78f08522",
+  //   position: {
+  //     top: 310,
+  //     left: 110,
+  //     column: 1,
+  //     row: 3,
+  //   },
+  //   value: 2
+  // },
 ];
 
 const initPowerUps = {

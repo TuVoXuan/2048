@@ -22,6 +22,36 @@ import {
   isValidMoveKey,
   updateLastPositionOfMergedCell,
 } from "./utils";
+import CellV2 from "./components/CellV2";
+
+const testDefaultCell = [
+  {
+    id: "563e3a27-bc1d-444f-9d45-d65ded8e00e0",
+    position: {
+      top: 310,
+      left: 110,
+      column: 1,
+      row: 3,
+    },
+    value: 2,
+  },
+  {
+    id: "c69fbcc0-c8f5-4360-97dc-c12a78f08522",
+    position: {
+      top: 10,
+      left: 110,
+      column: 1,
+      row: 0,
+    },
+    value: 2,
+    lastPosition: {
+      top: 310,
+      left: 110,
+      column: 1,
+      row: 3,
+    },
+  },
+];
 
 function handleCreateNewCell(
   usedPositions: IPosition[],
@@ -156,7 +186,7 @@ function App() {
   }, []);
 
   useEffect(() => {
-    // setLayoutByWidth(screenWidth);
+    setLayoutByWidth(screenWidth);
   }, [screenWidth]);
 
   return (
@@ -184,10 +214,16 @@ function App() {
           <AnimatePresence mode="popLayout">
             {cells.map((cell) => (
               <Cell key={cell.id} value={cell} />
+              // <CellV2 key={cell.id} value={cell} />
             ))}
           </AnimatePresence>
         </section>
-
+        <button
+          className="p-3 bg-blue-100"
+          onClick={() => updateAllCells(testDefaultCell)}
+        >
+          add last position
+        </button>
         <PowerUpButtonGroup />
         <Footer />
       </div>

@@ -107,12 +107,20 @@ export default function Cell({
   };
 
   const getAnimateProps = () => {
-    const baseProps = {
-      opacity: hasMounted ? 1 : 0,
-      scale: getScaleAnimation(),
+    const baseProps: any = {
+      // opacity: hasMounted ? 1 : 0,
+      // scale: getScaleAnimation(),
       top: value.position.top + "px",
       left: value.position.left + "px",
     };
+
+    if (value.lastPosition) {
+      baseProps.opacity = 1;
+      baseProps.scale = 1;
+    } else {
+      baseProps.opacity = hasMounted ? 1 : 0;
+      baseProps.scale = getScaleAnimation();
+    }
 
     if (showPulseEffectMerge && showMergeEffect) {
       return {
@@ -125,17 +133,20 @@ export default function Cell({
   };
 
   const getTransitionProps = () => {
-    const baseTransition = {
+    const baseTransition: any = {
       layout: {
         duration: 0.25,
         ease: "easeInOut",
       },
-      scale: getScaleTransition(),
       default: {
         type: "spring",
         duration: 0.3,
       },
     };
+
+    if (!value.lastPosition) {
+      baseTransition.scale = getScaleTransition();
+    }
 
     if (showMergeEffect) {
       return {
@@ -148,6 +159,23 @@ export default function Cell({
     }
 
     return baseTransition;
+  };
+
+  const getInitialProps = () => {
+    if (value.lastPosition) {
+      return {
+        opacity: 1,
+        scale: 1,
+        top: value.lastPosition.top + "px",
+        left: value.lastPosition.left + "px",
+      };
+    }
+    return {
+      opacity: 0,
+      scale: 0,
+      top: value.position.top + "px",
+      left: value.position.left + "px",
+    };
   };
 
   const renderNumberContent = () => {
@@ -180,12 +208,7 @@ export default function Cell({
         key={`cell-${value.id}`}
         layout
         layoutId={`cell-${value.id}`}
-        initial={{
-          opacity: 0,
-          scale: 0,
-          top: value.position.top + "px",
-          left: value.position.left + "px",
-        }}
+        initial={getInitialProps()}
         animate={getAnimateProps()}
         transition={getTransitionProps() as any}
         exit={{
