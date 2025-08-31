@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { MoveKeyCodes, SQUARE_GRID_SIZE } from "../constants";
 import type { Direction, ICell, IPosition } from "../types";
+import { cloneDeep } from "lodash";
 
 export function getTwoRandomItems<T>(arr: T[]): [T, T] | null {
   if (arr.length < 2) return null;
@@ -291,18 +292,24 @@ export function isGameOver(currCells: ICell[]) {
     return false;
   }
   const cellGrid = cellArrayToGrid(currCells);
-  
+
   // Grid is full, now check for possible merges
   for (let i = 0; i < cellGrid.length; i++) {
     for (let j = 0; j < cellGrid.length; j++) {
       const currentValue = cellGrid[i][j];
       // Check right neighbor (horizontal merge)
-      if (j < cellGrid.length - 1 && cellGrid[i][j + 1]?.value === currentValue?.value) {
+      if (
+        j < cellGrid.length - 1 &&
+        cellGrid[i][j + 1]?.value === currentValue?.value
+      ) {
         return false;
       }
 
       // Check bottom neighbor (vertical merge)
-      if (i < cellGrid.length - 1 && cellGrid[i + 1][j]?.value === currentValue?.value) {
+      if (
+        i < cellGrid.length - 1 &&
+        cellGrid[i + 1][j]?.value === currentValue?.value
+      ) {
         return false;
       }
     }
@@ -310,7 +317,29 @@ export function isGameOver(currCells: ICell[]) {
   return true;
 }
 
-export function calculateScore(cells: ICell[]){
-  console.log('cells: ', cells);
+export function calculateScore(cells: ICell[]) {
   return cells.reduce((pre, cur) => pre + cur.value, 0);
+}
+
+export function updateLastPositionOfMergedCell(
+  currCells: ICell[],
+  lastCells: ICell[]
+) {
+  const clonedLastCells = cloneDeep(lastCells);
+  currCells.forEach((curCell) => {
+    if (curCell.isMergingTo) {
+      const foundedCell = clonedLastCells.find(
+        (cell) => cell.id === curCell.id
+      );
+      if (foundedCell) {
+        foundedCell.lastPosition = curCell.position;
+      }
+    }
+  });
+
+  clonedLastCells.forEach((cell) => {
+    cell.isHistory = true;
+  });
+
+  return clonedLastCells;
 }

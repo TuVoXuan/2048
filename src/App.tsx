@@ -1,11 +1,13 @@
 import { AnimatePresence } from "motion/react";
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 import "./App.css";
 import Cell from "./components/Cell";
+import Footer from "./components/Footer";
 import GameOver from "./components/GameOver";
 import Header from "./components/Header";
-import { CELL_SIZE, LAYOUT_SPACING, MoveKeyCodes } from "./constants";
+import PowerUpButtonGroup from "./components/PowerUpButtonGroup";
+import { MoveKeyCodes } from "./constants";
 import { useScreenWidth } from "./hooks/useScreenWidth";
 import { cn } from "./lib/utils";
 import useAppStore from "./store/AppStore";
@@ -18,8 +20,9 @@ import {
   isGameOver,
   isMoveAble,
   isValidMoveKey,
+  updateLastPositionOfMergedCell,
 } from "./utils";
-import Footer from "./components/Footer";
+import Introduction from "./components/Dialog/Introduction";
 
 function handleCreateNewCell(
   usedPositions: IPosition[],
@@ -47,20 +50,22 @@ function handleCreateNewCell(
 function App() {
   const {
     cells,
-    showPulseEffectMerge,
     updateAllCells,
     isActionInProgress,
     setActionInProgress,
     addScore,
     gameOver,
     setGameOver,
+    layout,
     setLayoutByWidth,
     initGame,
     cellGridPositions,
     addMove,
+    addHistory,
   } = useAppStore();
   const cellsRef = useRef<ICell[]>([]);
   const screenWidth = useScreenWidth();
+  const [firstLoad, setFirstLoad] = useState(true);
 
   useEffect(() => {
     cellsRef.current = cells;
@@ -97,6 +102,11 @@ function App() {
         if (newCell) {
           movedCells.push(newCell);
           addMove();
+          const updatedLastCell = updateLastPositionOfMergedCell(
+            movedCells,
+            cellsRef.current
+          );
+          addHistory(updatedLastCell);
         }
       }
 
@@ -106,12 +116,9 @@ function App() {
       updateAllCells(movedCells);
 
       // Reset action in progress after a short delay to allow animations to complete
-      setTimeout(
-        () => {
-          setActionInProgress(false);
-        },
-        showPulseEffectMerge ? 600 : 300
-      ); // 150ms delay to allow for cell animations
+      setTimeout(() => {
+        setActionInProgress(false);
+      }, 300); // 300ms delay to allow for cell animations
     },
     [cellGridPositions, setActionInProgress]
   );
@@ -152,12 +159,12 @@ function App() {
 
   return (
     <main className="bg-[#FAF8F0] h-screen w-full font-family-rubik">
-      <div className="py-5 flex flex-col items-center gap-y-5 max-w-[1120px] mx-auto">
+      <div className="pt-5 flex flex-col items-center gap-y-5 max-w-[1120px] mx-auto">
         <Header />
         <section
           style={{
-            gap: LAYOUT_SPACING + "px",
-            padding: LAYOUT_SPACING + "px",
+            gap: layout.layoutSpacing + "px",
+            padding: layout.layoutSpacing + "px",
           }}
           className={cn("relative bg-[#9C8B7C] grid grid-cols-4 rounded-xl")}
         >
@@ -165,8 +172,8 @@ function App() {
             <div
               key={index}
               style={{
-                height: CELL_SIZE + "px",
-                width: CELL_SIZE + "px",
+                height: layout.cellSize + "px",
+                width: layout.cellSize + "px",
               }}
               className={cn("bg-[#BDAC97] rounded-lg shadow-2xs")}
             ></div>
@@ -178,9 +185,12 @@ function App() {
             ))}
           </AnimatePresence>
         </section>
+        <PowerUpButtonGroup />
         <Footer />
       </div>
       {gameOver && <GameOver />}
+
+      <Introduction open={firstLoad} setOpen={() => setFirstLoad(false)} />
     </main>
   );
 }
