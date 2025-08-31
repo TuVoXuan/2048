@@ -1,5 +1,5 @@
 import { AnimatePresence } from "motion/react";
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 import "./App.css";
 import Cell from "./components/Cell";
@@ -22,6 +22,7 @@ import {
   isValidMoveKey,
   updateLastPositionOfMergedCell,
 } from "./utils";
+import Introduction from "./components/Dialog/Introduction";
 
 function handleCreateNewCell(
   usedPositions: IPosition[],
@@ -64,6 +65,7 @@ function App() {
   } = useAppStore();
   const cellsRef = useRef<ICell[]>([]);
   const screenWidth = useScreenWidth();
+  const [firstLoad, setFirstLoad] = useState(true);
 
   useEffect(() => {
     cellsRef.current = cells;
@@ -187,6 +189,8 @@ function App() {
         <Footer />
       </div>
       {gameOver && <GameOver />}
+
+      <Introduction open={firstLoad} setOpen={() => setFirstLoad(false)} />
     </main>
   );
 }

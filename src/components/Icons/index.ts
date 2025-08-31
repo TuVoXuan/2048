@@ -1,15 +1,15 @@
-import Back from './Back';
-import Code from './Code';
-import DeleteTile from './DeleteTile';
-import Menu from './Menu';
-import Swap from './Swap';
+import Back from "./Back";
+import Code from "./Code";
+import DeleteTile from "./DeleteTile";
+import Menu from "./Menu";
+import Swap from "./Swap";
 
 const Icons = {
   Menu,
   Code,
   Back,
   Swap,
-  DeleteTile
-}
+  DeleteTile,
+};
 
-export default Icons
+export default Icons;
