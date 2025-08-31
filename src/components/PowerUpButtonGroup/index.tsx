@@ -9,16 +9,19 @@ export default function PowerUpButtonGroup() {
     gameHistories,
     removeLastHistory,
     minusMove,
+    cells,
   } = useAppStore();
 
   function handleUndo() {
-    console.log("gameHistories: ", gameHistories.value);
-    const lastMovedCells = gameHistories.pop();
+    console.log("gameHistories: ", gameHistories);
+    const lastMovedCells = gameHistories.at(-1);
     if (lastMovedCells) {
+      console.log("cells: ", cells);
       console.log("lastMovedCells:", lastMovedCells);
       updateAllCells(lastMovedCells);
       removeLastHistory();
       minusMove();
+      //minute score
     }
   }
 

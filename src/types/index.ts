@@ -3,9 +3,10 @@ export interface ICell {
   value: number;
   position: IPosition;
   //store old position for the history move
-  lastPosition?: IPosition,
+  lastPosition?: IPosition;
   isMerging?: boolean;
-  isMergingTo?: boolean
+  isMergingTo?: boolean;
+  isHistory?: boolean;
 }
 
 export interface IPosition {
@@ -16,10 +17,10 @@ export interface IPosition {
 }
 
 export interface IPowerUp {
-  name: string,
-  maxUses: number,
-  remainingUse: number,
-  tileToGetUse: number
+  name: string;
+  maxUses: number;
+  remainingUse: number;
+  tileToGetUse: number;
 }
 
-export type Direction = 'up' | 'down' | 'left' | 'right';
+export type Direction = "up" | "down" | "left" | "right";

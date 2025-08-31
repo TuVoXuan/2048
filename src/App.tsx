@@ -22,7 +22,6 @@ import {
   isValidMoveKey,
   updateLastPositionOfMergedCell,
 } from "./utils";
-import CellV2 from "./components/CellV2";
 
 const testDefaultCell = [
   {
@@ -79,7 +78,6 @@ function handleCreateNewCell(
 function App() {
   const {
     cells,
-    showPulseEffectMerge,
     updateAllCells,
     isActionInProgress,
     setActionInProgress,
@@ -135,6 +133,7 @@ function App() {
             movedCells,
             cellsRef.current
           );
+          console.log("updatedLastCell: ", updatedLastCell);
           addHistory(updatedLastCell);
         }
       }
@@ -145,12 +144,9 @@ function App() {
       updateAllCells(movedCells);
 
       // Reset action in progress after a short delay to allow animations to complete
-      setTimeout(
-        () => {
-          setActionInProgress(false);
-        },
-        showPulseEffectMerge ? 600 : 300
-      ); // 150ms delay to allow for cell animations
+      setTimeout(() => {
+        setActionInProgress(false);
+      }, 300); // 150ms delay to allow for cell animations
     },
     [cellGridPositions, setActionInProgress]
   );
@@ -176,7 +172,7 @@ function App() {
   };
 
   useEffect(() => {
-    // initGame();
+    initGame();
 
     document.addEventListener("keydown", onListenPressMoveBtn);
 
@@ -214,16 +210,15 @@ function App() {
           <AnimatePresence mode="popLayout">
             {cells.map((cell) => (
               <Cell key={cell.id} value={cell} />
-              // <CellV2 key={cell.id} value={cell} />
             ))}
           </AnimatePresence>
         </section>
-        <button
+        {/* <button
           className="p-3 bg-blue-100"
           onClick={() => updateAllCells(testDefaultCell)}
         >
           add last position
-        </button>
+        </button> */}
         <PowerUpButtonGroup />
         <Footer />
       </div>

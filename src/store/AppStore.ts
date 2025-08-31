@@ -1,13 +1,12 @@
-import { create } from "zustand";
-import type { ICell, IPosition, IPowerUp } from "../types";
+import { getRandomTwoOrFour, getTwoRandomItems } from "@/utils";
 import {
   computeCellGridPositions,
   type LayoutConfig,
 } from "@/utils/computeCellGridPositions";
 import { getLayoutConfig } from "@/utils/getLayoutConfig";
-import { getRandomTwoOrFour, getTwoRandomItems } from "@/utils";
 import { v4 as uuidv4 } from "uuid";
-import { FixedSizeStack } from "@/classes/FixedSizeStack";
+import { create } from "zustand";
+import type { ICell, IPosition, IPowerUp } from "../types";
 
 const testDefaultCell = [
   {
@@ -19,17 +18,19 @@ const testDefaultCell = [
       row: 3,
     },
     value: 4,
+    ismerging: true,
   },
-  // {
-  //   id: "c69fbcc0-c8f5-4360-97dc-c12a78f08522",
-  //   position: {
-  //     top: 310,
-  //     left: 110,
-  //     column: 1,
-  //     row: 3,
-  //   },
-  //   value: 2
-  // },
+  {
+    id: "c69fbcc0-c8f5-4360-97dc-c12a78f08522",
+    position: {
+      top: 310,
+      left: 110,
+      column: 1,
+      row: 3,
+    },
+    value: 2,
+    isMergingTo: true,
+  },
 ];
 
 const initPowerUps = {
@@ -59,9 +60,6 @@ interface IAppStore {
   updateAllCells: (cells: ICell[]) => void;
   updateMergeState: (cellId: string, isMerging: boolean) => void;
   removeOldPosition: (cellId: string) => void;
-  //State effect merge
-  showPulseEffectMerge: boolean;
-  setShowPulseEffectMerge: (value: boolean) => void;
   //State action in progress
   isActionInProgress: boolean;
   setActionInProgress: (value: boolean) => void;
@@ -84,7 +82,7 @@ interface IAppStore {
   initGame: () => void;
   resetGame: () => void;
   //State game power up
-  gameHistories: FixedSizeStack<ICell[]>;
+  gameHistories: ICell[][];
   addHistory: (cells: ICell[]) => void;
   removeLastHistory: () => void;
   powerUps: {
@@ -115,9 +113,6 @@ const useAppStore = create<IAppStore>((set, get) => ({
     }
     set({ cells: cells });
   },
-  showPulseEffectMerge: false,
-  setShowPulseEffectMerge: (value) =>
-    set(() => ({ showPulseEffectMerge: value })),
   isActionInProgress: false,
   setActionInProgress: (value) => set(() => ({ isActionInProgress: value })),
   score: 0,
@@ -181,9 +176,12 @@ const useAppStore = create<IAppStore>((set, get) => ({
     set({ gameOver: false, cells: [], score: 0, moves: 0 });
     get().initGame();
   },
-  gameHistories: new FixedSizeStack<ICell[]>(2),
+  gameHistories: [],
   addHistory: (cells) => {
     const { gameHistories } = get();
+    if (gameHistories.length >= 2) {
+      gameHistories.shift();
+    }
     gameHistories.push(cells);
     set({ gameHistories: gameHistories });
   },
