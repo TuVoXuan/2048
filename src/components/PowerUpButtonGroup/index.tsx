@@ -1,6 +1,7 @@
 import useAppStore from "@/store/AppStore";
-import PowerUpsButton from "../PowerUpButton";
 import Icons from "../Icons";
+import PowerUpsButton from "../PowerUpButton";
+import { useEffect } from "react";
 
 export default function PowerUpButtonGroup() {
   const {
@@ -9,19 +10,57 @@ export default function PowerUpButtonGroup() {
     gameHistories,
     removeLastHistory,
     minusMove,
+    scoreHistory,
+    removeLastScoreHistory,
+    setScore,
+    minuteRemainingTurnPowerUp,
+    addReminingTurnPowerUp,
     cells,
   } = useAppStore();
 
+  useEffect(() => {
+    if (undo.tileToGetUse) {
+      const hasTileToGetUse = cells.some(
+        (cell) => cell.value === undo.tileToGetUse
+      );
+      if (hasTileToGetUse) {
+        addReminingTurnPowerUp("undo");
+      }
+    }
+    if (swapTwoTiles.tileToGetUse) {
+      const hasTileToGetUse = cells.some(
+        (cell) => cell.value === swapTwoTiles.tileToGetUse
+      );
+      if (hasTileToGetUse) {
+        addReminingTurnPowerUp("swapTwoTiles");
+      }
+    }
+    if (deleteTilesByNumber.tileToGetUse) {
+      const hasTileToGetUse = cells.some(
+        (cell) => cell.value === deleteTilesByNumber.tileToGetUse
+      );
+      if (hasTileToGetUse) {
+        addReminingTurnPowerUp("deleteTilesByNumber");
+      }
+    }
+  }, [
+    cells,
+    undo.tileToGetUse,
+    swapTwoTiles.tileToGetUse,
+    deleteTilesByNumber.tileToGetUse,
+    addReminingTurnPowerUp,
+  ]);
+
   function handleUndo() {
-    console.log("gameHistories: ", gameHistories);
     const lastMovedCells = gameHistories.at(-1);
-    if (lastMovedCells) {
-      console.log("cells: ", cells);
-      console.log("lastMovedCells:", lastMovedCells);
+    const lastScore = scoreHistory.at(-1);
+    if (lastMovedCells && lastScore !== undefined) {
       updateAllCells(lastMovedCells);
       removeLastHistory();
       minusMove();
-      //minute score
+      setScore(lastScore);
+      removeLastScoreHistory();
+      minuteRemainingTurnPowerUp("undo");
     }
   }
 
@@ -32,7 +71,7 @@ export default function PowerUpButtonGroup() {
         icon={<Icons.Back />}
         remainingUses={undo.remainingUse}
         tileValueToGetUse={undo.tileToGetUse}
-        active
+        active={undo.remainingUse > 0 && gameHistories.length > 0}
         onClick={handleUndo}
       />
       <PowerUpsButton

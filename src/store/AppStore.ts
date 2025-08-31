@@ -8,31 +8,6 @@ import { v4 as uuidv4 } from "uuid";
 import { create } from "zustand";
 import type { ICell, IPosition, IPowerUp } from "../types";
 
-const testDefaultCell = [
-  {
-    id: "563e3a27-bc1d-444f-9d45-d65ded8e00e0",
-    position: {
-      top: 310,
-      left: 110,
-      column: 1,
-      row: 3,
-    },
-    value: 4,
-    ismerging: true,
-  },
-  {
-    id: "c69fbcc0-c8f5-4360-97dc-c12a78f08522",
-    position: {
-      top: 310,
-      left: 110,
-      column: 1,
-      row: 3,
-    },
-    value: 2,
-    isMergingTo: true,
-  },
-];
-
 const initPowerUps = {
   undo: {
     name: "undo",
@@ -66,6 +41,8 @@ interface IAppStore {
   //State game Score
   score: number;
   addScore: (value: number) => void;
+  setScore: (value: number) => void;
+  //State game best score
   bestScore: number;
   setBestScore: (value: number) => void;
   //State the number of moving
@@ -82,6 +59,9 @@ interface IAppStore {
   initGame: () => void;
   resetGame: () => void;
   //State game power up
+  scoreHistory: number[];
+  removeLastScoreHistory: () => void;
+  //State game history
   gameHistories: ICell[][];
   addHistory: (cells: ICell[]) => void;
   removeLastHistory: () => void;
@@ -90,10 +70,14 @@ interface IAppStore {
     swapTwoTiles: IPowerUp;
     deleteTilesByNumber: IPowerUp;
   };
+  minuteRemainingTurnPowerUp: (
+    powerUpName: keyof IAppStore["powerUps"]
+  ) => void;
+  addReminingTurnPowerUp: (powerUpName: keyof IAppStore["powerUps"]) => void;
 }
 
 const useAppStore = create<IAppStore>((set, get) => ({
-  cells: testDefaultCell,
+  cells: [],
   updateAllCells: (nCells) => set({ cells: nCells }),
   updateMergeState: (cellId, isMerging) =>
     set((state) => {
@@ -116,7 +100,13 @@ const useAppStore = create<IAppStore>((set, get) => ({
   isActionInProgress: false,
   setActionInProgress: (value) => set(() => ({ isActionInProgress: value })),
   score: 0,
-  addScore: (value) => set((state) => ({ score: state.score + value })),
+  addScore: (value) => {
+    const { score, scoreHistory } = get();
+    scoreHistory.push(score);
+    const newScore = score + value;
+    set({ score: newScore, scoreHistory: scoreHistory });
+  },
+  setScore: (value) => set(() => ({ score: value })),
   bestScore: parseInt(localStorage.getItem("bestScore") || "0"),
   setBestScore: (value: number) => {
     set({ bestScore: value });
@@ -176,6 +166,12 @@ const useAppStore = create<IAppStore>((set, get) => ({
     set({ gameOver: false, cells: [], score: 0, moves: 0 });
     get().initGame();
   },
+  scoreHistory: [],
+  removeLastScoreHistory: () => {
+    const { scoreHistory } = get();
+    scoreHistory.pop();
+    set({ scoreHistory: scoreHistory });
+  },
   gameHistories: [],
   addHistory: (cells) => {
     const { gameHistories } = get();
@@ -191,6 +187,22 @@ const useAppStore = create<IAppStore>((set, get) => ({
     set({ gameHistories: gameHistories });
   },
   powerUps: initPowerUps,
+  minuteRemainingTurnPowerUp: (powerUpName) =>
+    set((state) => {
+      const powerUp = state.powerUps[powerUpName];
+      if (powerUp && powerUp.remainingUse > 0) {
+        powerUp.remainingUse--;
+      }
+      return { powerUps: { ...state.powerUps, [powerUpName]: powerUp } };
+    }),
+  addReminingTurnPowerUp: (powerUpName) =>
+    set((state) => {
+      const powerUp = state.powerUps[powerUpName];
+      if (powerUp && powerUp.remainingUse < powerUp.maxUses) {
+        powerUp.remainingUse++;
+      }
+      return { powerUps: { ...state.powerUps, [powerUpName]: powerUp } };
+    }),
 }));
 
 export default useAppStore;

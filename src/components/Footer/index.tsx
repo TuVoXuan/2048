@@ -2,11 +2,11 @@ import Icons from "../Icons";
 
 export default function Footer() {
   return (
-    <footer className="flex flex-col gap-y-2 items-center">
+    <footer className="relative flex flex-col gap-y-2 items-center w-full">
       <a
         href="https://github.com/TuVoXuan/2048"
         target="blank"
-        className="flex items-center gap-2 text-[#756452] text-sm font-me px-2 py-1 rounded-md bg-[#E9E7D8]"
+        className="absolute right-0 flex items-center gap-2 text-[#756452] text-sm font-me px-2 py-1 rounded-md bg-[#E9E7D8]"
       >
         <Icons.Code className="size-5 stroke-2" />
         Github

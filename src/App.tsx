@@ -23,35 +23,6 @@ import {
   updateLastPositionOfMergedCell,
 } from "./utils";
 
-const testDefaultCell = [
-  {
-    id: "563e3a27-bc1d-444f-9d45-d65ded8e00e0",
-    position: {
-      top: 310,
-      left: 110,
-      column: 1,
-      row: 3,
-    },
-    value: 2,
-  },
-  {
-    id: "c69fbcc0-c8f5-4360-97dc-c12a78f08522",
-    position: {
-      top: 10,
-      left: 110,
-      column: 1,
-      row: 0,
-    },
-    value: 2,
-    lastPosition: {
-      top: 310,
-      left: 110,
-      column: 1,
-      row: 3,
-    },
-  },
-];
-
 function handleCreateNewCell(
   usedPositions: IPosition[],
   cellGridPositions: IPosition[]
@@ -133,7 +104,6 @@ function App() {
             movedCells,
             cellsRef.current
           );
-          console.log("updatedLastCell: ", updatedLastCell);
           addHistory(updatedLastCell);
         }
       }
@@ -146,7 +116,7 @@ function App() {
       // Reset action in progress after a short delay to allow animations to complete
       setTimeout(() => {
         setActionInProgress(false);
-      }, 300); // 150ms delay to allow for cell animations
+      }, 300); // 300ms delay to allow for cell animations
     },
     [cellGridPositions, setActionInProgress]
   );
@@ -187,7 +157,7 @@ function App() {
 
   return (
     <main className="bg-[#FAF8F0] h-screen w-full font-family-rubik">
-      <div className="py-5 flex flex-col items-center gap-y-5 max-w-[1120px] mx-auto">
+      <div className="pt-5 flex flex-col items-center gap-y-5 max-w-[1120px] mx-auto">
         <Header />
         <section
           style={{
@@ -213,12 +183,6 @@ function App() {
             ))}
           </AnimatePresence>
         </section>
-        {/* <button
-          className="p-3 bg-blue-100"
-          onClick={() => updateAllCells(testDefaultCell)}
-        >
-          add last position
-        </button> */}
         <PowerUpButtonGroup />
         <Footer />
       </div>
