@@ -31,8 +31,8 @@ export default function GameOver() {
           <h1 className="text-[48px] text-[#978876] font-semibold">
             Game Over
           </h1>
-          <p className="text-[#978876]">
-            {score} points scored in {moves} moves.{" "}
+          <p className="text-[#978876] text-center">
+            {score} points scored in {moves} moves. <br className="lg:hidden" />
             <span className="font-medium">No powerups used!</span>
           </p>
         </div>
@@ -64,7 +64,7 @@ export default function GameOver() {
 
         <div className="flex flex-col gap-y-3">
           <Button
-            className="w-[400px] bg-transparent border-[#9C8B7C] text-[#9C8B7C] font-normal hover:bg-transparent cursor-pointer"
+            className="w-[320px] sm:w-[400px] bg-transparent border-[#9C8B7C] text-[#9C8B7C] font-normal hover:bg-transparent cursor-pointer"
             variant={"outline"}
             onClick={() => {
               resetGame();

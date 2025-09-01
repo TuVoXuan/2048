@@ -24,6 +24,7 @@ import {
   updateLastPositionOfMergedCell,
 } from "./utils";
 import Introduction from "./components/Dialog/Introduction";
+import Score from "./components/Score";
 
 function handleCreateNewCell(
   usedPositions: IPosition[],
@@ -65,6 +66,8 @@ function App() {
     addHistory,
     powerUps,
     addReminingTurnPowerUp,
+    score,
+    bestScore,
   } = useAppStore();
   const cellsRef = useRef<ICell[]>([]);
   const screenWidth = useScreenWidth();
@@ -178,9 +181,15 @@ function App() {
   }, [screenWidth]);
 
   return (
-    <main className="bg-[#FAF8F0] h-screen w-full font-family-rubik">
-      <div className="pt-5 flex flex-col items-center gap-y-5 max-w-[1120px] mx-auto">
+    <main className="bg-[#FAF8F0] px-4 h-screen w-full font-family-rubik">
+      <div className="pt-5 flex flex-col items-center gap-y-4 sm:gap-y-5 max-w-[1120px] mx-auto">
         <Header />
+        {/* Score section */}
+        <div className="flex sm:hidden w-full gap-x-4">
+          <Score label="Score" score={score} isActive />
+          <Score label="Best" score={bestScore} />
+        </div>
+        {/* Cells section */}
         <section
           style={{
             gap: layout.layoutSpacing + "px",

@@ -10,7 +10,8 @@ export default function Score({ label, score, isActive }: ScoreProps) {
   return (
     <div
       className={cn(
-        "px-4 py-1 text-[#978876] rounded-[12px] flex flex-col items-center w-[100px]",
+        "px-4 py-1 text-[#978876] rounded-[12px] flex justify-between items-center w-full",
+        "sm:flex-col sm:w-[100px] sm:justtify-center",
         isActive
           ? "bg-[#E9E7D8] "
           : "bg-transparent border-[2px] border-[#E9E7D8]"

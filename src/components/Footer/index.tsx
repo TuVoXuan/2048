@@ -6,7 +6,7 @@ export default function Footer() {
       <a
         href="https://github.com/TuVoXuan/2048"
         target="blank"
-        className="absolute right-0 flex items-center gap-2 text-[#756452] text-sm font-me px-2 py-1 rounded-md bg-[#E9E7D8]"
+        className="hidden absolute right-0 lg:flex items-center gap-2 text-[#756452] text-sm font-me px-2 py-1 rounded-md bg-[#E9E7D8]"
       >
         <Icons.Code className="size-5 stroke-2" />
         Github
@@ -25,6 +25,14 @@ export default function Footer() {
         </p>
         <p className="font-semibold">Not for commercial use.</p>
       </div>
+      <a
+        href="https://github.com/TuVoXuan/2048"
+        target="blank"
+        className="flex lg:hidden items-center gap-2 text-[#756452] text-sm font-me px-2 py-1 rounded-md bg-[#E9E7D8]"
+      >
+        <Icons.Code className="size-5 stroke-2" />
+        Github
+      </a>
     </footer>
   );
 }
