@@ -239,7 +239,7 @@ function App() {
   return (
     <main
       id="container"
-      className="bg-[#FAF8F0] px-4 h-svh lg:h-screen w-full font-family-rubik overscroll-contain"
+      className="bg-[#FAF8F0] px-4 h-svh lg:h-screen w-full font-family-rubik"
     >
       <div className="pt-5 flex flex-col items-center gap-y-4 sm:gap-y-5 max-w-[1120px] mx-auto">
         <Header />
