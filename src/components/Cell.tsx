@@ -59,11 +59,11 @@ export default function Cell({
     cellTextColors[cellValue] || "text-white";
 
   const getFontSize = (cellValue: number) => {
-    if (cellValue < 1000) return "text-[42px]";
-    if (cellValue < 10000) return "text-[36px]";
-    if (cellValue < 100000) return "text-[29px]";
-    if (cellValue < 1000000) return "text-[24px]";
-    if (cellValue < 10000000) return "text-[22px]";
+    if (cellValue < 1000) return "text-[30px] md:text-[42px]";
+    if (cellValue < 10000) return "text-[26px] md:text-[36px]";
+    if (cellValue < 100000) return "text-[24px] md:text-[29px]";
+    if (cellValue < 1000000) return "text-[20px] md:text-[24px]";
+    if (cellValue < 10000000) return "text-[18px] md:text-[22px]";
     return "text-[20px]";
   };
 
