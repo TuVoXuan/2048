@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { MoveKeyCodes, SQUARE_GRID_SIZE } from "../constants";
-import type { Direction, ICell, IPosition } from "../types";
 import { cloneDeep } from "lodash";
+import { MoveKeyCodes, SQUARE_GRID_SIZE } from "../constants";
+import type { Direction, ICell, IPosition, IPowerUp } from "../types";
 
 export function getTwoRandomItems<T>(arr: T[]): [T, T] | null {
   if (arr.length < 2) return null;
@@ -181,6 +181,9 @@ export function calculateMovedCells(
         if (foundedCell) {
           foundedCell.value = foundedCell.value * 2;
           frontCell.isMerging = true;
+          if (frontCell.isUsedToPowerUp) {
+            foundedCell.isUsedToPowerUp = false;
+          }
         }
         movedCells.push({
           ...cell,
@@ -342,4 +345,67 @@ export function updateLastPositionOfMergedCell(
   });
 
   return clonedLastCells;
+}
+
+export function checkTilesToGetPowerUp(
+  cells: ICell[],
+  powerUs: {
+    undo: IPowerUp;
+    swapTwoTiles: IPowerUp;
+    deleteTilesByNumber: IPowerUp;
+  }
+) {
+  const { undo, swapTwoTiles, deleteTilesByNumber } = powerUs;
+  let hasTileToGetUndo = false;
+  let hasTileToGetSwapTwoTiles = false;
+  let hasTileToGetDeleteTilesByNumber = false;
+  if (cells.length > 0) {
+    if (undo.tileToGetUse) {
+      const hasTileToGetUse = cells.some(
+        (cell) => cell.value === undo.tileToGetUse && !cell.isUsedToPowerUp
+      );
+      if (hasTileToGetUse) {
+        cells.forEach((cell) => {
+          if (cell.value === undo.tileToGetUse) {
+            cell.isUsedToPowerUp = true;
+          }
+        });
+      }
+      hasTileToGetUndo = hasTileToGetUse;
+    }
+    if (swapTwoTiles.tileToGetUse) {
+      const hasTileToGetUse = cells.some(
+        (cell) =>
+          cell.value === swapTwoTiles.tileToGetUse && !cell.isUsedToPowerUp
+      );
+      if (hasTileToGetUse) {
+        cells.forEach((cell) => {
+          if (cell.value === swapTwoTiles.tileToGetUse) {
+            cell.isUsedToPowerUp = true;
+          }
+        });
+      }
+      hasTileToGetSwapTwoTiles = hasTileToGetUse;
+    }
+    if (deleteTilesByNumber.tileToGetUse) {
+      const hasTileToGetUse = cells.some(
+        (cell) =>
+          cell.value === deleteTilesByNumber.tileToGetUse &&
+          !cell.isUsedToPowerUp
+      );
+      if (hasTileToGetUse) {
+        cells.forEach((cell) => {
+          if (cell.value === deleteTilesByNumber.tileToGetUse) {
+            cell.isUsedToPowerUp = true;
+          }
+        });
+      }
+      hasTileToGetDeleteTilesByNumber = hasTileToGetUse;
+    }
+  }
+  return {
+    hasTileToGetUndo,
+    hasTileToGetSwapTwoTiles,
+    hasTileToGetDeleteTilesByNumber,
+  };
 }

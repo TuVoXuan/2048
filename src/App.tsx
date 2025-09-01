@@ -15,6 +15,7 @@ import type { Direction, ICell, IPosition } from "./types";
 import {
   calculateMovedCells,
   calculateScore,
+  checkTilesToGetPowerUp,
   getRandomItem,
   getRandomTwoOrFour,
   isGameOver,
@@ -62,6 +63,8 @@ function App() {
     cellGridPositions,
     addMove,
     addHistory,
+    powerUps,
+    addReminingTurnPowerUp,
   } = useAppStore();
   const cellsRef = useRef<ICell[]>([]);
   const screenWidth = useScreenWidth();
@@ -106,7 +109,24 @@ function App() {
             movedCells,
             cellsRef.current
           );
+
           addHistory(updatedLastCell);
+          // Check tiles to get power up
+          const {
+            hasTileToGetDeleteTilesByNumber,
+            hasTileToGetSwapTwoTiles,
+            hasTileToGetUndo,
+          } = checkTilesToGetPowerUp(movedCells, powerUps);
+
+          if (hasTileToGetDeleteTilesByNumber) {
+            addReminingTurnPowerUp("deleteTilesByNumber");
+          }
+          if (hasTileToGetSwapTwoTiles) {
+            addReminingTurnPowerUp("swapTwoTiles");
+          }
+          if (hasTileToGetUndo) {
+            addReminingTurnPowerUp("undo");
+          }
         }
       }
 
