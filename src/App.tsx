@@ -24,6 +24,7 @@ import {
   updateLastPositionOfMergedCell,
 } from "./utils";
 import Introduction from "./components/Dialog/Introduction";
+import Score from "./components/Score";
 
 function handleCreateNewCell(
   usedPositions: IPosition[],
@@ -65,10 +66,13 @@ function App() {
     addHistory,
     powerUps,
     addReminingTurnPowerUp,
+    score,
+    bestScore,
   } = useAppStore();
   const cellsRef = useRef<ICell[]>([]);
   const screenWidth = useScreenWidth();
   const [firstLoad, setFirstLoad] = useState(true);
+  const touchStartPointRef = useRef<{ x: number; y: number } | null>(null);
 
   useEffect(() => {
     cellsRef.current = cells;
@@ -163,13 +167,68 @@ function App() {
     }
   };
 
+  const onListernTouchEnd = (e: TouchEvent) => {
+    // Ignore if touch ends on a button or link
+    const target = e.target as HTMLElement;
+    if (target.closest("button, a")) return;
+
+    const touchEndX = e.changedTouches[0].clientX;
+    const touchEndY = e.changedTouches[0].clientY;
+
+    if (!touchStartPointRef.current) return;
+    const deltaX = touchEndX - touchStartPointRef.current.x;
+    const deltaY = touchEndY - touchStartPointRef.current.y;
+    const distance = Math.hypot(deltaX, deltaY);
+
+    // Ignore small swipes
+    if (distance < 30) return;
+
+    // Calculate angle in degrees
+    const angleRad = Math.atan2(deltaY, deltaX);
+    const angleDeg = angleRad * (180 / Math.PI);
+    const angle360 = (angleDeg + 360) % 360;
+    if (!isActionInProgress) {
+      if (angle360 <= 45 || angle360 >= 315) {
+        handleMoveCells("right");
+      } else if (angle360 > 45 && angle360 < 135) {
+        handleMoveCells("down");
+      } else if (angle360 >= 135 && angle360 <= 225) {
+        handleMoveCells("left");
+      } else if (angle360 > 225 && angle360 < 315) {
+        handleMoveCells("up");
+      }
+    }
+  };
+
+  const onListenTouchStart = (e: TouchEvent) => {
+    // Ignore if touch starts on a button or link
+    const target = e.target as HTMLElement;
+    if (target.closest("button, a")) return;
+
+    const touchStartX = e.touches[0].clientX;
+    const touchStartY = e.touches[0].clientY;
+    touchStartPointRef.current = { x: touchStartX, y: touchStartY };
+  };
+
   useEffect(() => {
     initGame();
 
+    // Attach keydown event listener
     document.addEventListener("keydown", onListenPressMoveBtn);
+    const container = document.getElementById("container");
+    if (container) {
+      container.addEventListener("touchstart", onListenTouchStart);
+      container.addEventListener("touchend", onListernTouchEnd);
+    }
+
+    // Cleanup event listener on component unmount
 
     return () => {
       document.removeEventListener("keydown", onListenPressMoveBtn);
+      if (container) {
+        container.removeEventListener("touchstart", onListenTouchStart);
+        container.removeEventListener("touchend", onListernTouchEnd);
+      }
     };
   }, []);
 
@@ -178,9 +237,18 @@ function App() {
   }, [screenWidth]);
 
   return (
-    <main className="bg-[#FAF8F0] h-screen w-full font-family-rubik">
-      <div className="pt-5 flex flex-col items-center gap-y-5 max-w-[1120px] mx-auto">
+    <main
+      id="container"
+      className="bg-[#FAF8F0] px-4 h-screen w-full font-family-rubik"
+    >
+      <div className="pt-5 flex flex-col items-center gap-y-4 sm:gap-y-5 max-w-[1120px] mx-auto">
         <Header />
+        {/* Score section */}
+        <div className="flex sm:hidden w-full gap-x-4">
+          <Score label="Score" score={score} isActive />
+          <Score label="Best" score={bestScore} />
+        </div>
+        {/* Cells section */}
         <section
           style={{
             gap: layout.layoutSpacing + "px",
