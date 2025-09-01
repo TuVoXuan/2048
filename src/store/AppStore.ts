@@ -163,7 +163,13 @@ const useAppStore = create<IAppStore>((set, get) => ({
   resetGame: () => {
     // If you want `setGameOver(false)` to also start a new game,
     // you can either call initGame() from here, or make setGameOver do it when false.
-    set({ gameOver: false, cells: [], score: 0, moves: 0 });
+    set({
+      gameOver: false,
+      cells: [],
+      score: 0,
+      moves: 0,
+      powerUps: initPowerUps,
+    });
     get().initGame();
   },
   scoreHistory: [],
@@ -195,14 +201,15 @@ const useAppStore = create<IAppStore>((set, get) => ({
       }
       return { powerUps: { ...state.powerUps, [powerUpName]: powerUp } };
     }),
-  addReminingTurnPowerUp: (powerUpName) =>
+  addReminingTurnPowerUp: (powerUpName) => {
     set((state) => {
       const powerUp = state.powerUps[powerUpName];
       if (powerUp && powerUp.remainingUse < powerUp.maxUses) {
         powerUp.remainingUse++;
       }
       return { powerUps: { ...state.powerUps, [powerUpName]: powerUp } };
-    }),
+    });
+  },
 }));
 
 export default useAppStore;

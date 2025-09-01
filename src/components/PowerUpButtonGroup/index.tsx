@@ -1,7 +1,6 @@
 import useAppStore from "@/store/AppStore";
 import Icons from "../Icons";
 import PowerUpsButton from "../PowerUpButton";
-import { useEffect } from "react";
 
 export default function PowerUpButtonGroup() {
   const {
@@ -14,42 +13,7 @@ export default function PowerUpButtonGroup() {
     removeLastScoreHistory,
     setScore,
     minuteRemainingTurnPowerUp,
-    addReminingTurnPowerUp,
-    cells,
   } = useAppStore();
-
-  useEffect(() => {
-    if (undo.tileToGetUse) {
-      const hasTileToGetUse = cells.some(
-        (cell) => cell.value === undo.tileToGetUse
-      );
-      if (hasTileToGetUse) {
-        addReminingTurnPowerUp("undo");
-      }
-    }
-    if (swapTwoTiles.tileToGetUse) {
-      const hasTileToGetUse = cells.some(
-        (cell) => cell.value === swapTwoTiles.tileToGetUse
-      );
-      if (hasTileToGetUse) {
-        addReminingTurnPowerUp("swapTwoTiles");
-      }
-    }
-    if (deleteTilesByNumber.tileToGetUse) {
-      const hasTileToGetUse = cells.some(
-        (cell) => cell.value === deleteTilesByNumber.tileToGetUse
-      );
-      if (hasTileToGetUse) {
-        addReminingTurnPowerUp("deleteTilesByNumber");
-      }
-    }
-  }, [
-    cells,
-    undo.tileToGetUse,
-    swapTwoTiles.tileToGetUse,
-    deleteTilesByNumber.tileToGetUse,
-    addReminingTurnPowerUp,
-  ]);
 
   function handleUndo() {
     const lastMovedCells = gameHistories.at(-1);

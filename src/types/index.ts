@@ -7,6 +7,7 @@ export interface ICell {
   isMerging?: boolean;
   isMergingTo?: boolean;
   isHistory?: boolean;
+  isUsedToPowerUp?: boolean;
 }
 
 export interface IPosition {
