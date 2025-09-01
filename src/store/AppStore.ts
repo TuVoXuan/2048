@@ -113,8 +113,8 @@ const useAppStore = create<IAppStore>((set, get) => ({
     localStorage.setItem("bestScore", value.toString());
   },
   moves: 0,
-  addMove: () => set((state) => ({ moves: state.moves++ })),
-  minusMove: () => set((state) => ({ moves: state.moves-- })),
+  addMove: () => set((state) => ({ moves: state.moves + 1 })),
+  minusMove: () => set((state) => ({ moves: state.moves - 1 })),
   gameOver: false,
   setGameOver: (gameOver) =>
     set(() => {
