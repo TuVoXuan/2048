@@ -3,10 +3,13 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 import "./App.css";
 import Cell from "./components/Cell";
+import Introduction from "./components/Dialog/Introduction";
 import Footer from "./components/Footer";
 import GameOver from "./components/GameOver";
 import Header from "./components/Header";
+import PowerUpActionLayout from "./components/PowerUpActionLayout";
 import PowerUpButtonGroup from "./components/PowerUpButtonGroup";
+import Score from "./components/Score";
 import { MoveKeyCodes } from "./constants";
 import { useScreenWidth } from "./hooks/useScreenWidth";
 import { cn } from "./lib/utils";
@@ -23,8 +26,6 @@ import {
   isValidMoveKey,
   updateLastPositionOfMergedCell,
 } from "./utils";
-import Introduction from "./components/Dialog/Introduction";
-import Score from "./components/Score";
 
 function handleCreateNewCell(
   usedPositions: IPosition[],
@@ -68,6 +69,7 @@ function App() {
     addReminingTurnPowerUp,
     score,
     bestScore,
+    powerUpAction,
   } = useAppStore();
   const cellsRef = useRef<ICell[]>([]);
   const screenWidth = useScreenWidth();
@@ -212,17 +214,20 @@ function App() {
 
   useEffect(() => {
     initGame();
+  }, []);
 
-    // Attach keydown event listener
-    document.addEventListener("keydown", onListenPressMoveBtn);
+  useEffect(() => {
     const container = document.getElementById("container");
-    if (container) {
-      container.addEventListener("touchstart", onListenTouchStart);
-      container.addEventListener("touchend", onListernTouchEnd);
+
+    if (!powerUpAction) {
+      // Attach keydown event listener
+      document.addEventListener("keydown", onListenPressMoveBtn);
+      if (container) {
+        container.addEventListener("touchstart", onListenTouchStart);
+        container.addEventListener("touchend", onListernTouchEnd);
+      }
     }
-
     // Cleanup event listener on component unmount
-
     return () => {
       document.removeEventListener("keydown", onListenPressMoveBtn);
       if (container) {
@@ -230,7 +235,7 @@ function App() {
         container.removeEventListener("touchend", onListernTouchEnd);
       }
     };
-  }, []);
+  }, [powerUpAction]);
 
   useEffect(() => {
     setLayoutByWidth(screenWidth);
@@ -279,6 +284,7 @@ function App() {
       {gameOver && <GameOver />}
 
       <Introduction open={firstLoad} setOpen={() => setFirstLoad(false)} />
+      <PowerUpActionLayout />
     </main>
   );
 }

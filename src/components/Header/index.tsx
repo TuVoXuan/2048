@@ -1,4 +1,6 @@
+import { useScreenWidth } from "@/hooks/useScreenWidth";
 import useAppStore from "@/store/AppStore";
+import { motion } from "motion/react";
 import { useState } from "react";
 import NavIcon from "../Navigation/NavIcon";
 import Score from "../Score";
@@ -13,18 +15,33 @@ import {
 } from "../ui/dialog";
 
 export default function Header() {
-  const { score, bestScore, resetGame } = useAppStore();
+  const { score, bestScore, resetGame, powerUpAction } = useAppStore();
   const [showDialogNewGame, setShowDialogNewGame] = useState<boolean>(false);
+  const screenWidth = useScreenWidth();
 
   return (
     <>
-      <header className="relative flex justify-between items-center w-full">
+      <motion.header
+        animate={{
+          visibility:
+            screenWidth <= 640 && powerUpAction ? "hidden" : "visible",
+          opacity: screenWidth <= 640 && powerUpAction ? 0 : 1,
+        }}
+        className={"relative flex justify-between items-center w-full"}
+      >
         <NavIcon />
 
-        <div className="hidden sm:flex items-center gap-x-4 absolute top-1/2 left-1/2 translate-x-[-50%] translate-y-[-50%]">
+        <motion.div
+          animate={{
+            opacity: screenWidth > 640 && powerUpAction ? 0 : 1,
+          }}
+          className={
+            "hidden sm:flex items-center gap-x-4 absolute top-1/2 left-1/2 translate-x-[-50%] translate-y-[-50%]"
+          }
+        >
           <Score label="Score" score={score} isActive />
           <Score label="Best" score={bestScore} />
-        </div>
+        </motion.div>
 
         <Button
           onClick={() => setShowDialogNewGame(true)}
@@ -32,7 +49,7 @@ export default function Header() {
         >
           New game
         </Button>
-      </header>
+      </motion.header>
 
       <Dialog open={showDialogNewGame} onOpenChange={setShowDialogNewGame}>
         <DialogHeader className="hidden">

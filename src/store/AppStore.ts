@@ -6,9 +6,9 @@ import {
 import { getLayoutConfig } from "@/utils/getLayoutConfig";
 import { v4 as uuidv4 } from "uuid";
 import { create } from "zustand";
-import type { ICell, IPosition, IPowerUp } from "../types";
+import type { ICell, IPosition, IPowerUp, PowerUpActionType } from "../types";
 
-const initPowerUps = {
+const getInitPowerUps = () => ({
   undo: {
     name: "undo",
     maxUses: 2,
@@ -27,7 +27,7 @@ const initPowerUps = {
     remainingUse: 0,
     tileToGetUse: 512,
   },
-};
+});
 
 interface IAppStore {
   //State cells
@@ -74,6 +74,13 @@ interface IAppStore {
     powerUpName: keyof IAppStore["powerUps"]
   ) => void;
   addReminingTurnPowerUp: (powerUpName: keyof IAppStore["powerUps"]) => void;
+  //State for power up action
+  powerUpAction?: PowerUpActionType;
+  setPowerUpAction: (type: PowerUpActionType | undefined) => void;
+  swapTwoTiles: ICell[];
+  addSwapTwoTiles: (cells: ICell) => void;
+  removeSwapTwoTiles: (cellId: string) => void;
+  clearSwapTwoTiles: () => void;
 }
 
 const useAppStore = create<IAppStore>((set, get) => ({
@@ -168,7 +175,8 @@ const useAppStore = create<IAppStore>((set, get) => ({
       cells: [],
       score: 0,
       moves: 0,
-      powerUps: initPowerUps,
+      powerUps: getInitPowerUps(),
+      gameHistories: [],
     });
     get().initGame();
   },
@@ -192,7 +200,7 @@ const useAppStore = create<IAppStore>((set, get) => ({
     gameHistories.pop();
     set({ gameHistories: gameHistories });
   },
-  powerUps: initPowerUps,
+  powerUps: getInitPowerUps(),
   minuteRemainingTurnPowerUp: (powerUpName) =>
     set((state) => {
       const powerUp = state.powerUps[powerUpName];
@@ -210,6 +218,26 @@ const useAppStore = create<IAppStore>((set, get) => ({
       return { powerUps: { ...state.powerUps, [powerUpName]: powerUp } };
     });
   },
+  powerUpAction: undefined,
+  setPowerUpAction: (type) => set(() => ({ powerUpAction: type })),
+  swapTwoTiles: [],
+  addSwapTwoTiles: (cell) =>
+    set((state) => {
+      if (state.swapTwoTiles.length < 2) {
+        return { swapTwoTiles: [...state.swapTwoTiles, cell] };
+      }
+      return state;
+    }),
+  removeSwapTwoTiles: (cellId) =>
+    set((state) => {
+      if (state.swapTwoTiles) {
+        return {
+          swapTwoTiles: state.swapTwoTiles.filter((cell) => cell.id !== cellId),
+        };
+      }
+      return state;
+    }),
+  clearSwapTwoTiles: () => set(() => ({ swapTwoTiles: [] })),
 }));
 
 export default useAppStore;

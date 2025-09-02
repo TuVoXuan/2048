@@ -4,7 +4,7 @@ import PowerUpsButton from "../PowerUpButton";
 
 export default function PowerUpButtonGroup() {
   const {
-    powerUps: { undo, swapTwoTiles, deleteTilesByNumber },
+    powerUps,
     updateAllCells,
     gameHistories,
     removeLastHistory,
@@ -13,6 +13,8 @@ export default function PowerUpButtonGroup() {
     removeLastScoreHistory,
     setScore,
     minuteRemainingTurnPowerUp,
+    powerUpAction,
+    setPowerUpAction,
   } = useAppStore();
 
   function handleUndo() {
@@ -31,24 +33,30 @@ export default function PowerUpButtonGroup() {
   return (
     <div className="flex items-center gap-x-3 p-3 rounded-[22px] bg-[#eae7d9]">
       <PowerUpsButton
-        title={undo.name}
+        title={powerUps.undo.name}
         icon={<Icons.Back />}
-        remainingUses={undo.remainingUse}
-        tileValueToGetUse={undo.tileToGetUse}
-        active={undo.remainingUse > 0 && gameHistories.length > 0}
+        remainingUses={powerUps.undo.remainingUse}
+        tileValueToGetUse={powerUps.undo.tileToGetUse}
+        active={powerUps.undo.remainingUse > 0 && gameHistories.length > 0}
         onClick={handleUndo}
       />
       <PowerUpsButton
-        title={swapTwoTiles.name}
+        active={
+          powerUps.swapTwoTiles.remainingUse > 0 && gameHistories.length > 0
+        }
+        title={powerUps.swapTwoTiles.name}
         icon={<Icons.Swap />}
-        remainingUses={swapTwoTiles.remainingUse}
-        tileValueToGetUse={swapTwoTiles.tileToGetUse}
+        remainingUses={powerUps.swapTwoTiles.remainingUse}
+        tileValueToGetUse={powerUps.swapTwoTiles.tileToGetUse}
+        powerUpActionToToggle="swap two tiles"
+        powerUpAction={powerUpAction}
+        onClick={() => setPowerUpAction("swap two tiles")}
       />
       <PowerUpsButton
-        title={deleteTilesByNumber.name}
+        title={powerUps.deleteTilesByNumber.name}
         icon={<Icons.DeleteTile />}
-        remainingUses={deleteTilesByNumber.remainingUse}
-        tileValueToGetUse={deleteTilesByNumber.tileToGetUse}
+        remainingUses={powerUps.deleteTilesByNumber.remainingUse}
+        tileValueToGetUse={powerUps.deleteTilesByNumber.tileToGetUse}
       />
     </div>
   );

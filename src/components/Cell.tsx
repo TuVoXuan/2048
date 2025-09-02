@@ -30,6 +30,10 @@ export default function Cell({
   const {
     updateMergeState,
     layout: { cellSize },
+    powerUpAction,
+    swapTwoTiles,
+    addSwapTwoTiles,
+    removeSwapTwoTiles,
   } = useAppStore();
   const [hasMounted, setHasMounted] = useState(false);
   const [showMergeEffect, setShowMergeEffect] = useState(false);
@@ -71,6 +75,10 @@ export default function Cell({
   const getScaleAnimation = () => {
     if (showMergeEffect) {
       return [1, 1.1, 1];
+    }
+    if (powerUpAction === "swap two tiles") {
+      const isInSwap = swapTwoTiles.find((cell) => cell.id === value.id);
+      return isInSwap ? 1.1 : 1;
     }
     return hasMounted ? 1 : 0;
   };
@@ -156,6 +164,25 @@ export default function Cell({
     };
   };
 
+  const getHoverProps = () => {
+    if (powerUpAction === "swap two tiles") {
+      return { scale: 1.1, cursor: "pointer" };
+    }
+  };
+
+  const hanldeClickCell = () => {
+    if (powerUpAction === "swap two tiles") {
+      const isInSwap = swapTwoTiles.find((cell) => cell.id === value.id);
+      if (!isInSwap) {
+        if (swapTwoTiles.length < 2) {
+          addSwapTwoTiles(value);
+        }
+      } else {
+        removeSwapTwoTiles(value.id);
+      }
+    }
+  };
+
   return (
     <AnimatePresence>
       <motion.div
@@ -164,6 +191,7 @@ export default function Cell({
         layoutId={`cell-${value.id}`}
         initial={getInitialProps()}
         animate={getAnimateProps()}
+        whileHover={getHoverProps()}
         transition={getTransitionProps() as any}
         exit={{
           opacity: 0,
@@ -180,6 +208,7 @@ export default function Cell({
           getCellTextColor(value.value),
           getFontSize(value.value)
         )}
+        onClick={hanldeClickCell}
       >
         <span className="font-bold">{value.value}</span>
       </motion.div>
