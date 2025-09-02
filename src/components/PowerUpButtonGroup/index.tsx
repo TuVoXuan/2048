@@ -17,8 +17,6 @@ export default function PowerUpButtonGroup() {
     setPowerUpAction,
   } = useAppStore();
 
-  console.log("powerUps: ", powerUps);
-
   function handleUndo() {
     const lastMovedCells = gameHistories.at(-1);
     const lastScore = scoreHistory.at(-1);
