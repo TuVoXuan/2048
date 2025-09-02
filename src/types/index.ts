@@ -25,3 +25,7 @@ export interface IPowerUp {
 }
 
 export type Direction = "up" | "down" | "left" | "right";
+export type PowerUpActionType =
+  | "undo"
+  | "swap two tiles"
+  | "delete tiles by number";

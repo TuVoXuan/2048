@@ -1,4 +1,7 @@
 import { cn } from "@/lib/utils";
+import useAppStore from "@/store/AppStore";
+import { X } from "lucide-react";
+import { motion } from "motion/react";
 import { v4 as uuidv4 } from "uuid";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 
@@ -9,6 +12,8 @@ interface PowerUpsButtonProps {
   tileValueToGetUse: number;
   active?: boolean;
   onClick?: () => void;
+  powerUpActionToToggle?: string;
+  powerUpAction?: string;
 }
 
 export default function PowerUpsButton({
@@ -18,21 +23,50 @@ export default function PowerUpsButton({
   tileValueToGetUse,
   active,
   onClick,
+  powerUpActionToToggle,
+  powerUpAction,
 }: PowerUpsButtonProps) {
+  const { setPowerUpAction } = useAppStore();
+
   return (
     <Tooltip>
       <TooltipTrigger asChild>
-        <div className="flex flex-col gap-y-2 items-center">
-          <button
+        <div className="relative flex flex-col gap-y-2 items-center">
+          <motion.button
+            animate={{
+              y:
+                powerUpAction &&
+                powerUpActionToToggle &&
+                powerUpActionToToggle === powerUpAction
+                  ? "-70%"
+                  : "0%",
+            }}
+            transition={{
+              type: "spring",
+              stiffness: 300,
+              damping: 20,
+              duration: 0.3,
+            }}
+            aria-label={title}
+            title={title}
+            type="button"
             onClick={onClick}
             disabled={!active}
             className={cn(
-              "cursor-pointer disabled:cursor-default h-12 w-12 rounded-[10px] flex items-center justify-center text-white",
-              active ? "bg-[#baac9a]" : "bg-[#baac9a]/30"
+              "relative z-[2] cursor-pointer disabled:cursor-default h-12 w-12 rounded-[10px] flex items-center justify-center text-white",
+              active ? "bg-[#baac9a]" : "bg-[#DBD5C5]"
             )}
           >
             {icon}
-          </button>
+          </motion.button>
+          {powerUpActionToToggle && (
+            <button
+              onClick={() => setPowerUpAction(undefined)}
+              className="cursor-pointer z-[0] size-6 absolute bottom-0 left-1/2 -translate-1/2 bg-[#524F48] rounded-full flex items-center justify-center"
+            >
+              <X className="size-4 text-white" />
+            </button>
+          )}
           <div className="px-[6px] flex items-center gap-x-1 w-full">
             {new Array(2).fill(0).map((_item, index) => (
               <div
