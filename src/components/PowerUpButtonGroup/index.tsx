@@ -48,15 +48,22 @@ export default function PowerUpButtonGroup() {
         icon={<Icons.Swap />}
         remainingUses={powerUps.swapTwoTiles.remainingUse}
         tileValueToGetUse={powerUps.swapTwoTiles.tileToGetUse}
-        powerUpActionToToggle="swap two tiles"
+        powerUpActionToToggle="swapTwoTiles"
         powerUpAction={powerUpAction}
-        onClick={() => setPowerUpAction("swap two tiles")}
+        onClick={() => setPowerUpAction("swapTwoTiles")}
       />
       <PowerUpsButton
+        active={
+          powerUps.deleteTilesByNumber.remainingUse > 0 &&
+          gameHistories.length > 0
+        }
         title={powerUps.deleteTilesByNumber.name}
         icon={<Icons.DeleteTile />}
         remainingUses={powerUps.deleteTilesByNumber.remainingUse}
         tileValueToGetUse={powerUps.deleteTilesByNumber.tileToGetUse}
+        powerUpActionToToggle="deleteTilesByNumber"
+        powerUpAction={powerUpAction}
+        onClick={() => setPowerUpAction("deleteTilesByNumber")}
       />
     </div>
   );

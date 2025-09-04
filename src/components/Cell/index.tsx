@@ -1,9 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { cn } from "@/lib/utils";
-import { AnimatePresence, motion } from "motion/react";
+import { motion } from "motion/react";
 import { useEffect, useState } from "react";
-import useAppStore from "../store/AppStore";
-import type { ICell } from "../types";
+import useAppStore from "../../store/AppStore";
+import type { ICell } from "../../types";
 
 const cellBgColors: Record<number, string> = {
   2: "bg-[#EFE4DA]",
@@ -34,6 +34,7 @@ export default function Cell({
     swapTwoTiles,
     addSwapTwoTiles,
     removeSwapTwoTiles,
+    setValueOfTileToDelete,
   } = useAppStore();
   const [hasMounted, setHasMounted] = useState(false);
   const [showMergeEffect, setShowMergeEffect] = useState(false);
@@ -76,7 +77,7 @@ export default function Cell({
     if (showMergeEffect) {
       return [1, 1.1, 1];
     }
-    if (powerUpAction === "swap two tiles") {
+    if (powerUpAction === "swapTwoTiles") {
       const isInSwap = swapTwoTiles.find((cell) => cell.id === value.id);
       return isInSwap ? 1.1 : 1;
     }
@@ -165,13 +166,13 @@ export default function Cell({
   };
 
   const getHoverProps = () => {
-    if (powerUpAction === "swap two tiles") {
+    if (powerUpAction === "swapTwoTiles") {
       return { scale: 1.1, cursor: "pointer" };
     }
   };
 
-  const hanldeClickCell = () => {
-    if (powerUpAction === "swap two tiles") {
+  const handleClickCell = () => {
+    if (powerUpAction === "swapTwoTiles") {
       const isInSwap = swapTwoTiles.find((cell) => cell.id === value.id);
       if (!isInSwap) {
         if (swapTwoTiles.length < 2) {
@@ -180,38 +181,38 @@ export default function Cell({
       } else {
         removeSwapTwoTiles(value.id);
       }
+    } else if (powerUpAction === "deleteTilesByNumber") {
+      setValueOfTileToDelete(value.value);
     }
   };
 
   return (
-    <AnimatePresence>
-      <motion.div
-        key={`cell-${value.id}`}
-        layout
-        layoutId={`cell-${value.id}`}
-        initial={getInitialProps()}
-        animate={getAnimateProps()}
-        whileHover={getHoverProps()}
-        transition={getTransitionProps() as any}
-        exit={{
-          opacity: 0,
-          scale: 0,
-        }}
-        style={{
-          height: cellSize + "px",
-          width: cellSize + "px",
-          zIndex: value.isMergingTo ? 1 : showMergeEffect ? 10 : 2,
-        }}
-        className={cn(
-          "select-none absolute h-20 w-20 rounded-lg shadow-md flex items-center justify-center",
-          getCellBgColor(value.value),
-          getCellTextColor(value.value),
-          getFontSize(value.value)
-        )}
-        onClick={hanldeClickCell}
-      >
-        <span className="font-bold">{value.value}</span>
-      </motion.div>
-    </AnimatePresence>
+    <motion.div
+      key={`cell-${value.id}`}
+      layout
+      layoutId={`cell-${value.id}`}
+      initial={getInitialProps()}
+      animate={getAnimateProps()}
+      whileHover={getHoverProps()}
+      transition={getTransitionProps() as any}
+      exit={{
+        opacity: 0,
+        scale: 0,
+      }}
+      style={{
+        height: cellSize + "px",
+        width: cellSize + "px",
+        zIndex: value.isMergingTo ? 1 : showMergeEffect ? 10 : 2,
+      }}
+      className={cn(
+        "select-none absolute h-20 w-20 rounded-lg shadow-md flex items-center justify-center",
+        getCellBgColor(value.value),
+        getCellTextColor(value.value),
+        getFontSize(value.value)
+      )}
+      onClick={handleClickCell}
+    >
+      <span className="font-bold">{value.value}</span>
+    </motion.div>
   );
 }

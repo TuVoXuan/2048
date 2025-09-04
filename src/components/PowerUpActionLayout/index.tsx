@@ -13,6 +13,8 @@ export default function PowerUpActionLayout() {
     updateAllCells,
     addHistory,
     minuteRemainingTurnPowerUp,
+    setValueOfTileToDelete,
+    valueOfTileToDelete,
   } = useAppStore();
 
   function handleCancelSwapTwoTiles() {
@@ -34,15 +36,44 @@ export default function PowerUpActionLayout() {
     }
   }
 
+  function handleCancelDeleteTilesByNumber() {
+    setValueOfTileToDelete(undefined);
+    setPowerUpAction(undefined);
+  }
+
+  function handleDeleteTilesByNumber() {
+    addHistory(cloneDeep(cells));
+    const deletedCells = cells.filter(
+      (cell) => cell.value === valueOfTileToDelete
+    );
+    const cellsAfterDelete = cells.filter((cell) => {
+      const shouldDelete = deletedCells.some(
+        (deletedCell) =>
+          deletedCell.position.row === cell.position.row &&
+          deletedCell.position.column === cell.position.column
+      );
+      return !shouldDelete;
+    });
+    updateAllCells([...cellsAfterDelete]);
+    handleCancelDeleteTilesByNumber();
+    minuteRemainingTurnPowerUp("deleteTilesByNumber");
+  }
+
   useEffect(() => {
     if (swapTwoTiles.length === 2) {
       handleSwapTwoTile();
     }
   }, [swapTwoTiles.length]);
 
+  useEffect(() => {
+    if (valueOfTileToDelete) {
+      handleDeleteTilesByNumber();
+    }
+  }, [valueOfTileToDelete]);
+
   return (
     <div>
-      {powerUpAction === "swap two tiles" && (
+      {powerUpAction === "swapTwoTiles" && (
         <PowerUpAction
           title="Swap two tiles"
           description={`Choose the ${
@@ -53,6 +84,13 @@ export default function PowerUpActionLayout() {
               : ""
           } tiles`}
           onCancel={handleCancelSwapTwoTiles}
+        />
+      )}
+      {powerUpAction === "deleteTilesByNumber" && (
+        <PowerUpAction
+          title="Delete tiles by number"
+          description="Choose a number"
+          onCancel={handleCancelDeleteTilesByNumber}
         />
       )}
     </div>

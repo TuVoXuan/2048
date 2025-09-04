@@ -24,7 +24,7 @@ const getInitPowerUps = () => ({
   deleteTilesByNumber: {
     name: "delete tiles by number",
     maxUses: 2,
-    remainingUse: 0,
+    remainingUse: 1,
     tileToGetUse: 512,
   },
 });
@@ -81,6 +81,8 @@ interface IAppStore {
   addSwapTwoTiles: (cells: ICell) => void;
   removeSwapTwoTiles: (cellId: string) => void;
   clearSwapTwoTiles: () => void;
+  valueOfTileToDelete?: number;
+  setValueOfTileToDelete: (value: number|undefined) => void;
 }
 
 const useAppStore = create<IAppStore>((set, get) => ({
@@ -238,6 +240,8 @@ const useAppStore = create<IAppStore>((set, get) => ({
       return state;
     }),
   clearSwapTwoTiles: () => set(() => ({ swapTwoTiles: [] })),
+  valueOfTileToDelete: undefined,
+  setValueOfTileToDelete: (value) => set(() => ({ valueOfTileToDelete: value })),
 }));
 
 export default useAppStore;
