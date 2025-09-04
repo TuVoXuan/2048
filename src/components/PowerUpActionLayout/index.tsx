@@ -44,7 +44,7 @@ export default function PowerUpActionLayout() {
   function handleDeleteTilesByNumber() {
     addHistory(cloneDeep(cells));
     const deletedCells = cells.filter(
-      (cell) => cell.value === valueOfTileToDelete
+      (cell) => cell.value === valueOfTileToDelete && !cell.isMergingTo
     );
     const cellsAfterDelete = cells.filter((cell) => {
       const shouldDelete = deletedCells.some(
