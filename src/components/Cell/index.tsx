@@ -2,8 +2,8 @@
 import { cn } from "@/lib/utils";
 import { motion } from "motion/react";
 import { useEffect, useState } from "react";
-import useAppStore from "../store/AppStore";
-import type { ICell } from "../types";
+import useAppStore from "../../store/AppStore";
+import type { ICell } from "../../types";
 
 const cellBgColors: Record<number, string> = {
   2: "bg-[#EFE4DA]",
