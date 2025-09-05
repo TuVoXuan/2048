@@ -35,6 +35,8 @@ export default function Cell({
     addSwapTwoTiles,
     removeSwapTwoTiles,
     setValueOfTileToDelete,
+    tileToTeleport,
+    setTileToTeleport,
   } = useAppStore();
   const [hasMounted, setHasMounted] = useState(false);
   const [showMergeEffect, setShowMergeEffect] = useState(false);
@@ -79,7 +81,8 @@ export default function Cell({
     }
     if (powerUpAction === "swapTwoTiles") {
       const isInSwap = swapTwoTiles.find((cell) => cell.id === value.id);
-      return isInSwap ? 1.1 : 1;
+      const isSelectedToTeleport = tileToTeleport?.id === value.id;
+      return isInSwap || isSelectedToTeleport ? 1.1 : 1;
     }
     return hasMounted ? 1 : 0;
   };
@@ -166,7 +169,7 @@ export default function Cell({
   };
 
   const getHoverProps = () => {
-    if (powerUpAction === "swapTwoTiles") {
+    if (powerUpAction === "swapTwoTiles" || powerUpAction === "teleportATile") {
       return { scale: 1.1, cursor: "pointer" };
     }
   };
@@ -183,11 +186,15 @@ export default function Cell({
       }
     } else if (powerUpAction === "deleteTilesByNumber") {
       setValueOfTileToDelete(value.value);
+    } else if (powerUpAction === "teleportATile") {
+      setTileToTeleport(value);
     }
   };
 
   return (
     <motion.div
+      data-type="cell"
+      data-position={JSON.stringify(value.position)}
       key={`cell-${value.id}`}
       layout
       layoutId={`cell-${value.id}`}

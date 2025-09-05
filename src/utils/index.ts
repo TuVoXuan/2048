@@ -353,59 +353,34 @@ export function checkTilesToGetPowerUp(
     undo: IPowerUp;
     swapTwoTiles: IPowerUp;
     deleteTilesByNumber: IPowerUp;
+    teleportATile: IPowerUp
   }
 ) {
-  const { undo, swapTwoTiles, deleteTilesByNumber } = powerUs;
-  let hasTileToGetUndo = false;
-  let hasTileToGetSwapTwoTiles = false;
-  let hasTileToGetDeleteTilesByNumber = false;
+  const flags: Record<string, boolean> = {};
+
   if (cells.length > 0) {
-    if (undo.tileToGetUse) {
-      const hasTileToGetUse = cells.some(
-        (cell) => cell.value === undo.tileToGetUse && !cell.isUsedToPowerUp
-      );
-      if (hasTileToGetUse) {
-        cells.forEach((cell) => {
-          if (cell.value === undo.tileToGetUse) {
-            cell.isUsedToPowerUp = true;
-          }
-        });
+    Object.entries(powerUs).forEach(([key, powerUp]) => {
+      let hasTileToGetUse = false;
+      if (powerUp.tileToGetUse) {
+        hasTileToGetUse = cells.some(
+          (cell) => cell.value === powerUp.tileToGetUse && !cell.isUsedToPowerUp
+        );
+        if (hasTileToGetUse) {
+          cells.forEach((cell) => {
+            if (cell.value === powerUp.tileToGetUse) {
+              cell.isUsedToPowerUp = true;
+            }
+          });
+        }
       }
-      hasTileToGetUndo = hasTileToGetUse;
-    }
-    if (swapTwoTiles.tileToGetUse) {
-      const hasTileToGetUse = cells.some(
-        (cell) =>
-          cell.value === swapTwoTiles.tileToGetUse && !cell.isUsedToPowerUp
-      );
-      if (hasTileToGetUse) {
-        cells.forEach((cell) => {
-          if (cell.value === swapTwoTiles.tileToGetUse) {
-            cell.isUsedToPowerUp = true;
-          }
-        });
-      }
-      hasTileToGetSwapTwoTiles = hasTileToGetUse;
-    }
-    if (deleteTilesByNumber.tileToGetUse) {
-      const hasTileToGetUse = cells.some(
-        (cell) =>
-          cell.value === deleteTilesByNumber.tileToGetUse &&
-          !cell.isUsedToPowerUp
-      );
-      if (hasTileToGetUse) {
-        cells.forEach((cell) => {
-          if (cell.value === deleteTilesByNumber.tileToGetUse) {
-            cell.isUsedToPowerUp = true;
-          }
-        });
-      }
-      hasTileToGetDeleteTilesByNumber = hasTileToGetUse;
-    }
+      flags[key] = hasTileToGetUse;
+    });
   }
+
   return {
-    hasTileToGetUndo,
-    hasTileToGetSwapTwoTiles,
-    hasTileToGetDeleteTilesByNumber,
+    hasTileToGetUndo: !!flags?.undo,
+    hasTileToGetSwapTwoTiles: !!flags?.swapTwoTiles,
+    hasTileToGetDeleteTilesByNumber: !!flags?.deleteTilesByNumber,
+    hasTileToGetTeleportATile: !!flags?.teleportATile
   };
 }

@@ -1,8 +1,7 @@
-import { AnimatePresence } from "motion/react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 import "./App.css";
-import Cell from "./components/Cell";
+import CellLayout from "./components/CellLayout";
 import Introduction from "./components/Dialog/Introduction";
 import Footer from "./components/Footer";
 import GameOver from "./components/GameOver";
@@ -12,7 +11,6 @@ import PowerUpButtonGroup from "./components/PowerUpButtonGroup";
 import Score from "./components/Score";
 import { MoveKeyCodes } from "./constants";
 import { useScreenWidth } from "./hooks/useScreenWidth";
-import { cn } from "./lib/utils";
 import useAppStore from "./store/AppStore";
 import type { Direction, ICell, IPosition } from "./types";
 import {
@@ -59,21 +57,22 @@ function App() {
     addScore,
     gameOver,
     setGameOver,
-    layout,
     setLayoutByWidth,
     initGame,
     cellGridPositions,
     addMove,
     addHistory,
     powerUps,
-    addReminingTurnPowerUp,
+    addRemainingTurnPowerUp,
     score,
     bestScore,
     powerUpAction,
   } = useAppStore();
   const cellsRef = useRef<ICell[]>([]);
   const screenWidth = useScreenWidth();
-  const [firstLoad, setFirstLoad] = useState(true);
+  const [firstLoad, setFirstLoad] = useState(
+    localStorage.getItem("firstLoad") !== "false"
+  );
   const touchStartPointRef = useRef<{ x: number; y: number } | null>(null);
 
   useEffect(() => {
@@ -122,16 +121,20 @@ function App() {
             hasTileToGetDeleteTilesByNumber,
             hasTileToGetSwapTwoTiles,
             hasTileToGetUndo,
+            hasTileToGetTeleportATile,
           } = checkTilesToGetPowerUp(movedCells, powerUps);
 
           if (hasTileToGetDeleteTilesByNumber) {
-            addReminingTurnPowerUp("deleteTilesByNumber");
+            addRemainingTurnPowerUp("deleteTilesByNumber");
           }
           if (hasTileToGetSwapTwoTiles) {
-            addReminingTurnPowerUp("swapTwoTiles");
+            addRemainingTurnPowerUp("swapTwoTiles");
           }
           if (hasTileToGetUndo) {
-            addReminingTurnPowerUp("undo");
+            addRemainingTurnPowerUp("undo");
+          }
+          if (hasTileToGetTeleportATile) {
+            addRemainingTurnPowerUp("teleportATile");
           }
         }
       }
@@ -254,36 +257,19 @@ function App() {
           <Score label="Best" score={bestScore} />
         </div>
         {/* Cells section */}
-        <section
-          style={{
-            gap: layout.layoutSpacing + "px",
-            padding: layout.layoutSpacing + "px",
-          }}
-          className={cn("relative bg-[#9C8B7C] grid grid-cols-4 rounded-xl")}
-        >
-          {new Array(16).fill(0).map((_, index) => (
-            <div
-              key={index}
-              style={{
-                height: layout.cellSize + "px",
-                width: layout.cellSize + "px",
-              }}
-              className={cn("bg-[#BDAC97] rounded-lg shadow-2xs")}
-            ></div>
-          ))}
-
-          <AnimatePresence mode="popLayout">
-            {cells.map((cell) => (
-              <Cell key={cell.id} value={cell} />
-            ))}
-          </AnimatePresence>
-        </section>
+        <CellLayout />
         <PowerUpButtonGroup />
         <Footer />
       </div>
       {gameOver && <GameOver />}
 
-      <Introduction open={firstLoad} setOpen={() => setFirstLoad(false)} />
+      <Introduction
+        open={firstLoad}
+        setOpen={() => {
+          setFirstLoad(false);
+          localStorage.setItem("firstLoad", "false");
+        }}
+      />
       <PowerUpActionLayout />
     </main>
   );

@@ -15,6 +15,12 @@ const getInitPowerUps = () => ({
     remainingUse: 2,
     tileToGetUse: 128,
   },
+  teleportATile: {
+    name: "teleport a tile",
+    maxUses: 2,
+    remainingUse: 1,
+    tileToGetUse: 256,
+  },
   swapTwoTiles: {
     name: "swap two tiles",
     maxUses: 2,
@@ -68,12 +74,13 @@ interface IAppStore {
   powerUps: {
     undo: IPowerUp;
     swapTwoTiles: IPowerUp;
+    teleportATile: IPowerUp;
     deleteTilesByNumber: IPowerUp;
   };
   minuteRemainingTurnPowerUp: (
     powerUpName: keyof IAppStore["powerUps"]
   ) => void;
-  addReminingTurnPowerUp: (powerUpName: keyof IAppStore["powerUps"]) => void;
+  addRemainingTurnPowerUp: (powerUpName: keyof IAppStore["powerUps"]) => void;
   //State for power up action
   powerUpAction?: PowerUpActionType;
   setPowerUpAction: (type: PowerUpActionType | undefined) => void;
@@ -83,6 +90,10 @@ interface IAppStore {
   clearSwapTwoTiles: () => void;
   valueOfTileToDelete?: number;
   setValueOfTileToDelete: (value: number|undefined) => void;
+  tileToTeleport?: ICell;
+  positionToTeleport?: IPosition;
+  setTileToTeleport: (cell: ICell|undefined) => void;
+  setPositionToTeleport: (position: IPosition|undefined) => void;
 }
 
 const useAppStore = create<IAppStore>((set, get) => ({
@@ -211,7 +222,7 @@ const useAppStore = create<IAppStore>((set, get) => ({
       }
       return { powerUps: { ...state.powerUps, [powerUpName]: powerUp } };
     }),
-  addReminingTurnPowerUp: (powerUpName) => {
+  addRemainingTurnPowerUp: (powerUpName) => {
     set((state) => {
       const powerUp = state.powerUps[powerUpName];
       if (powerUp && powerUp.remainingUse < powerUp.maxUses) {
@@ -242,6 +253,10 @@ const useAppStore = create<IAppStore>((set, get) => ({
   clearSwapTwoTiles: () => set(() => ({ swapTwoTiles: [] })),
   valueOfTileToDelete: undefined,
   setValueOfTileToDelete: (value) => set(() => ({ valueOfTileToDelete: value })),
+  tileToTeleport: undefined,
+  positionToTeleport: undefined,
+  setTileToTeleport: (cell) => set(() => ({ tileToTeleport: cell })),
+  setPositionToTeleport: (position) => set(() => ({ positionToTeleport: position })),
 }));
 
 export default useAppStore;

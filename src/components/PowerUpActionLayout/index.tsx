@@ -15,6 +15,10 @@ export default function PowerUpActionLayout() {
     minuteRemainingTurnPowerUp,
     setValueOfTileToDelete,
     valueOfTileToDelete,
+    tileToTeleport,
+    positionToTeleport,
+    setTileToTeleport,
+    setPositionToTeleport,
   } = useAppStore();
 
   function handleCancelSwapTwoTiles() {
@@ -59,6 +63,30 @@ export default function PowerUpActionLayout() {
     minuteRemainingTurnPowerUp("deleteTilesByNumber");
   }
 
+  function handleCancelTeleportATile() {
+    setTileToTeleport(undefined);
+    setPositionToTeleport(undefined);
+    setPowerUpAction(undefined);
+  }
+
+  function handleTeleportATile() {
+    if (tileToTeleport && positionToTeleport) {
+      addHistory(cloneDeep(cells));
+      const teleportTiles = cells.filter(
+        (cell) =>
+          cell.position.column === tileToTeleport.position.column &&
+          cell.position.row === tileToTeleport.position.row
+      );
+
+      teleportTiles.forEach((tile) => (tile.position = positionToTeleport));
+
+      updateAllCells([...cells]);
+      handleCancelTeleportATile();
+      setPowerUpAction(undefined);
+      minuteRemainingTurnPowerUp("teleportATile");
+    }
+  }
+
   useEffect(() => {
     if (swapTwoTiles.length === 2) {
       handleSwapTwoTile();
@@ -71,8 +99,25 @@ export default function PowerUpActionLayout() {
     }
   }, [valueOfTileToDelete]);
 
+  useEffect(() => {
+    if (tileToTeleport && positionToTeleport) {
+      handleTeleportATile();
+    }
+  }, [tileToTeleport, positionToTeleport]);
+
   return (
     <div>
+      {powerUpAction === "teleportATile" && (
+        <PowerUpAction
+          title="Teleport a tile"
+          description={
+            !tileToTeleport
+              ? "Choose a tile"
+              : "Pick an empty spot on the board"
+          }
+          onCancel={handleCancelTeleportATile}
+        />
+      )}
       {powerUpAction === "swapTwoTiles" && (
         <PowerUpAction
           title="Swap two tiles"
