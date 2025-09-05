@@ -41,6 +41,10 @@ export default function CellLayout() {
     }
   }
 
+  function handleClickDirectlyEmptyCell(position: IPosition) {
+    setPositionToTeleport(position);
+  }
+
   useEffect(() => {
     const cellLayout = document.getElementById("cell-layout");
 
@@ -77,6 +81,7 @@ export default function CellLayout() {
             width: layout.cellSize + "px",
           }}
           className={cn("bg-[#BDAC97] rounded-lg shadow-2xs")}
+          onClick={() => handleClickDirectlyEmptyCell(position)}
         ></div>
       ))}
 
@@ -105,7 +110,7 @@ export default function CellLayout() {
               width: layout.cellSize + "px",
               scale: 1.12,
             }}
-            className="absolute bg-transparent rounded-xl border-[2.5px] border-white"
+            className="hidden lg:block absolute bg-transparent rounded-xl border-[2.5px] border-white"
             onClick={handleClickEmptyCell}
           ></motion.div>
         )}
