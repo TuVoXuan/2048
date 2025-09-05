@@ -27,19 +27,27 @@ export default function PowerUpActionLayout() {
   }
 
   function handleSwapTwoTile() {
-    //need to swap all cell, sometime have 2 cell in the same position so when swap need
-    //swap all
     addHistory(cloneDeep(cells));
-    const firstCell = cells.find((cell) => cell.id === swapTwoTiles[0].id);
-    const secondCell = cells.find((cell) => cell.id === swapTwoTiles[1].id);
-    if (firstCell && secondCell) {
-      const tempPosition = firstCell.position;
-      firstCell.position = secondCell.position;
-      secondCell.position = tempPosition;
-      updateAllCells([...cells]);
-      handleCancelSwapTwoTiles();
-      minuteRemainingTurnPowerUp("swapTwoTiles");
-    }
+    const posA = { ...swapTwoTiles[0].position };
+    const posB = { ...swapTwoTiles[1].position };
+
+    const firstCells = cells.filter(
+      (cell) =>
+        cell.position.column === swapTwoTiles[0].position.column &&
+        cell.position.row === swapTwoTiles[0].position.row
+    );
+    const secondCells = cells.filter(
+      (cell) =>
+        cell.position.column === swapTwoTiles[1].position.column &&
+        cell.position.row === swapTwoTiles[1].position.row
+    );
+
+    firstCells.forEach((cell) => (cell.position = { ...posB }));
+    secondCells.forEach((cell) => (cell.position = { ...posA }));
+
+    updateAllCells([...cells]);
+    handleCancelSwapTwoTiles();
+    minuteRemainingTurnPowerUp("swapTwoTiles");
   }
 
   function handleCancelDeleteTilesByNumber() {
