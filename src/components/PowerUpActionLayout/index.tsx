@@ -27,6 +27,8 @@ export default function PowerUpActionLayout() {
   }
 
   function handleSwapTwoTile() {
+    //need to swap all cell, sometime have 2 cell in the same position so when swap need
+    //swap all
     addHistory(cloneDeep(cells));
     const firstCell = cells.find((cell) => cell.id === swapTwoTiles[0].id);
     const secondCell = cells.find((cell) => cell.id === swapTwoTiles[1].id);

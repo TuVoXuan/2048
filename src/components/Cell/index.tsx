@@ -81,8 +81,12 @@ export default function Cell({
     }
     if (powerUpAction === "swapTwoTiles") {
       const isInSwap = swapTwoTiles.find((cell) => cell.id === value.id);
+
+      return isInSwap ? 1.1 : 1;
+    }
+    if (powerUpAction === "teleportATile") {
       const isSelectedToTeleport = tileToTeleport?.id === value.id;
-      return isInSwap || isSelectedToTeleport ? 1.1 : 1;
+      return isSelectedToTeleport ? 1.1 : 1;
     }
     return hasMounted ? 1 : 0;
   };
