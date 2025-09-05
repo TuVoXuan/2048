@@ -28,4 +28,5 @@ export type Direction = "up" | "down" | "left" | "right";
 export type PowerUpActionType =
   | "undo"
   | "swapTwoTiles"
+  | "teleportATile"
   | "deleteTilesByNumber";

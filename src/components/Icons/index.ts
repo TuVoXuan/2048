@@ -3,6 +3,7 @@ import Code from "./Code";
 import DeleteTile from "./DeleteTile";
 import Menu from "./Menu";
 import Swap from "./Swap";
+import Teleport from "./Teleport";
 
 const Icons = {
   Menu,
@@ -10,6 +11,7 @@ const Icons = {
   Back,
   Swap,
   DeleteTile,
+  Teleport,
 };
 
 export default Icons;

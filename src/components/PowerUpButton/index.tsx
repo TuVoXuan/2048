@@ -4,6 +4,7 @@ import { X } from "lucide-react";
 import { motion } from "motion/react";
 import { v4 as uuidv4 } from "uuid";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
+import type { PowerUpActionType } from "@/types";
 
 interface PowerUpsButtonProps {
   title: string;
@@ -12,8 +13,8 @@ interface PowerUpsButtonProps {
   tileValueToGetUse: number;
   active?: boolean;
   onClick?: () => void;
-  powerUpActionToToggle?: string;
-  powerUpAction?: string;
+  powerUpActionToToggle?: PowerUpActionType;
+  powerUpAction?: PowerUpActionType;
 }
 
 export default function PowerUpsButton({

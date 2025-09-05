@@ -42,6 +42,18 @@ export default function PowerUpButtonGroup() {
       />
       <PowerUpsButton
         active={
+          powerUps.teleportATile.remainingUse > 0 && gameHistories.length > 0
+        }
+        title={powerUps.teleportATile.name}
+        icon={<Icons.Teleport />}
+        remainingUses={powerUps.teleportATile.remainingUse}
+        tileValueToGetUse={powerUps.teleportATile.tileToGetUse}
+        powerUpActionToToggle="teleportATile"
+        powerUpAction={powerUpAction}
+        onClick={() => setPowerUpAction("teleportATile")}
+      />
+      <PowerUpsButton
+        active={
           powerUps.swapTwoTiles.remainingUse > 0 && gameHistories.length > 0
         }
         title={powerUps.swapTwoTiles.name}
