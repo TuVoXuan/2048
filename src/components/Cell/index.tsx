@@ -175,6 +175,7 @@ export default function Cell({
   const hoverProps = useMemo(() => {
     if (
       powerUpAction === "swapTwoTiles" ||
+      powerUpAction === "deleteTilesByNumber" ||
       (powerUpAction === "teleportATile" && !tileToTeleport)
     ) {
       return { scale: 1.1, cursor: "pointer" };
