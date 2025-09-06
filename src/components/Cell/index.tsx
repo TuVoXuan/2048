@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { cn } from "@/lib/utils";
 import { motion } from "motion/react";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import useAppStore from "../../store/AppStore";
 import type { ICell } from "../../types";
 
@@ -172,11 +172,15 @@ export default function Cell({
     };
   };
 
-  const getHoverProps = () => {
-    if (powerUpAction === "swapTwoTiles" || powerUpAction === "teleportATile") {
+  const hoverProps = useMemo(() => {
+    if (
+      powerUpAction === "swapTwoTiles" ||
+      (powerUpAction === "teleportATile" && !tileToTeleport)
+    ) {
       return { scale: 1.1, cursor: "pointer" };
     }
-  };
+    return {};
+  }, [powerUpAction, tileToTeleport]);
 
   const handleClickCell = () => {
     if (powerUpAction === "swapTwoTiles") {
@@ -204,7 +208,7 @@ export default function Cell({
       layoutId={`cell-${value.id}`}
       initial={getInitialProps()}
       animate={getAnimateProps()}
-      whileHover={getHoverProps()}
+      whileHover={hoverProps}
       transition={getTransitionProps() as any}
       exit={{
         opacity: 0,
