@@ -77,6 +77,16 @@ export default function PowerUpButtonGroup() {
         powerUpAction={powerUpAction}
         onClick={() => setPowerUpAction("deleteTilesByNumber")}
       />
+      <PowerUpsButton
+        active={powerUps.bomb.remainingUse > 0 && gameHistories.length > 0}
+        title={powerUps.bomb.name}
+        icon={<Icons.Bomb />}
+        remainingUses={powerUps.bomb.remainingUse}
+        tileValueToGetUse={powerUps.bomb.tileToGetUse}
+        powerUpActionToToggle="bomb"
+        powerUpAction={powerUpAction}
+        onClick={() => setPowerUpAction("bomb")}
+      />
     </div>
   );
 }

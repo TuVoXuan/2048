@@ -122,6 +122,7 @@ function App() {
             hasTileToGetSwapTwoTiles,
             hasTileToGetUndo,
             hasTileToGetTeleportATile,
+            hasTileToGetBomb,
           } = checkTilesToGetPowerUp(movedCells, powerUps);
 
           if (hasTileToGetDeleteTilesByNumber) {
@@ -135,6 +136,9 @@ function App() {
           }
           if (hasTileToGetTeleportATile) {
             addRemainingTurnPowerUp("teleportATile");
+          }
+          if (hasTileToGetBomb) {
+            addRemainingTurnPowerUp("bomb");
           }
         }
       }

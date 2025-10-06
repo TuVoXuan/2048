@@ -19,6 +19,8 @@ export default function PowerUpActionLayout() {
     positionToTeleport,
     setTileToTeleport,
     setPositionToTeleport,
+    tileToBomb,
+    setTileToBomb,
   } = useAppStore();
 
   function handleCancelSwapTwoTiles() {
@@ -92,8 +94,49 @@ export default function PowerUpActionLayout() {
 
       updateAllCells([...cells]);
       handleCancelTeleportATile();
-      setPowerUpAction(undefined);
       minuteRemainingTurnPowerUp("teleportATile");
+    }
+  }
+
+  function handleCancelBomb() {
+    setTileToBomb(undefined);
+    setPowerUpAction(undefined);
+  }
+
+  function handleBomb() {
+    if (tileToBomb) {
+      addHistory(cloneDeep(cells));
+      const positionsToDelete = [
+        tileToBomb.position,
+        {
+          row: tileToBomb.position.row - 1,
+          column: tileToBomb.position.column,
+        },
+        {
+          row: tileToBomb.position.row + 1,
+          column: tileToBomb.position.column,
+        },
+        {
+          row: tileToBomb.position.row,
+          column: tileToBomb.position.column - 1,
+        },
+        {
+          row: tileToBomb.position.row,
+          column: tileToBomb.position.column + 1,
+        },
+      ];
+
+      const cellsAfterDelete = cells.filter((cell) => {
+        const shouldDelete = positionsToDelete.some(
+          (pos) =>
+            pos.row === cell.position.row && pos.column === cell.position.column
+        );
+        return !shouldDelete;
+      });
+
+      updateAllCells([...cellsAfterDelete]);
+      handleCancelBomb();
+      minuteRemainingTurnPowerUp("bomb");
     }
   }
 
@@ -115,8 +158,21 @@ export default function PowerUpActionLayout() {
     }
   }, [tileToTeleport, positionToTeleport]);
 
+  useEffect(() => {
+    if (tileToBomb) {
+      handleBomb();
+    }
+  }, [tileToBomb]);
+
   return (
     <div>
+      {powerUpAction === "bomb" && (
+        <PowerUpAction
+          title="Bomb"
+          description="Choose a tile to make bomb"
+          onCancel={handleCancelBomb}
+        />
+      )}
       {powerUpAction === "teleportATile" && (
         <PowerUpAction
           title="Teleport a tile"

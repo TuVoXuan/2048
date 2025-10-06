@@ -1,4 +1,5 @@
 import Back from "./Back";
+import Bomb from "./Bomb";
 import Code from "./Code";
 import DeleteTile from "./DeleteTile";
 import Menu from "./Menu";
@@ -12,6 +13,7 @@ const Icons = {
   Swap,
   DeleteTile,
   Teleport,
+  Bomb
 };
 
 export default Icons;

@@ -5,6 +5,8 @@ import useAppStore from "@/store/AppStore";
 import { useEffect, useState } from "react";
 import type { IPosition } from "@/types";
 
+//need to make border for bomb when hover -> show the border of cells will be affected by bomb
+
 export default function CellLayout() {
   const {
     layout,
