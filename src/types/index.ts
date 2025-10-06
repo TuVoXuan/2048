@@ -29,4 +29,5 @@ export type PowerUpActionType =
   | "undo"
   | "swapTwoTiles"
   | "teleportATile"
-  | "deleteTilesByNumber";
+  | "deleteTilesByNumber"
+  | "bomb";

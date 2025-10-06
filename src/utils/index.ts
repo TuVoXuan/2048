@@ -353,7 +353,8 @@ export function checkTilesToGetPowerUp(
     undo: IPowerUp;
     swapTwoTiles: IPowerUp;
     deleteTilesByNumber: IPowerUp;
-    teleportATile: IPowerUp
+    teleportATile: IPowerUp,
+    bomb: IPowerUp
   }
 ) {
   const flags: Record<string, boolean> = {};
@@ -381,6 +382,7 @@ export function checkTilesToGetPowerUp(
     hasTileToGetUndo: !!flags?.undo,
     hasTileToGetSwapTwoTiles: !!flags?.swapTwoTiles,
     hasTileToGetDeleteTilesByNumber: !!flags?.deleteTilesByNumber,
-    hasTileToGetTeleportATile: !!flags?.teleportATile
+    hasTileToGetTeleportATile: !!flags?.teleportATile,
+    hasTileToGetBomb: !!flags?.bomb,
   };
 }

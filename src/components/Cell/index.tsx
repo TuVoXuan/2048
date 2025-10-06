@@ -37,6 +37,7 @@ export default function Cell({
     setValueOfTileToDelete,
     tileToTeleport,
     setTileToTeleport,
+    setTileToBomb,
   } = useAppStore();
   const [hasMounted, setHasMounted] = useState(false);
   const [showMergeEffect, setShowMergeEffect] = useState(false);
@@ -197,6 +198,8 @@ export default function Cell({
       setValueOfTileToDelete(value.value);
     } else if (powerUpAction === "teleportATile") {
       setTileToTeleport(value);
+    } else if (powerUpAction === "bomb") {
+      setTileToBomb(value);
     }
   };
 

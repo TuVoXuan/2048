@@ -33,6 +33,12 @@ const getInitPowerUps = () => ({
     remainingUse: 1,
     tileToGetUse: 512,
   },
+  bomb: {
+    name: "Bomb",
+    maxUses: 2,
+    remainingUse: 1,
+    tileToGetUse: 512,
+  },
 });
 
 interface IAppStore {
@@ -76,6 +82,7 @@ interface IAppStore {
     swapTwoTiles: IPowerUp;
     teleportATile: IPowerUp;
     deleteTilesByNumber: IPowerUp;
+    bomb: IPowerUp;
   };
   minuteRemainingTurnPowerUp: (
     powerUpName: keyof IAppStore["powerUps"]
@@ -94,6 +101,8 @@ interface IAppStore {
   positionToTeleport?: IPosition;
   setTileToTeleport: (cell: ICell|undefined) => void;
   setPositionToTeleport: (position: IPosition|undefined) => void;
+  tileToBomb?: ICell;
+  setTileToBomb: (cell: ICell|undefined) => void;
 }
 
 const useAppStore = create<IAppStore>((set, get) => ({
@@ -257,6 +266,8 @@ const useAppStore = create<IAppStore>((set, get) => ({
   positionToTeleport: undefined,
   setTileToTeleport: (cell) => set(() => ({ tileToTeleport: cell })),
   setPositionToTeleport: (position) => set(() => ({ positionToTeleport: position })),
+  tileToBomb: undefined,
+  setTileToBomb: (cell) => set(() => ({ tileToBomb: cell}))
 }));
 
 export default useAppStore;
