@@ -31,3 +31,10 @@ export type PowerUpActionType =
   | "teleportATile"
   | "deleteTilesByNumber"
   | "bomb";
+
+export type BombTilesAround = {
+  top?: IPosition;
+  bottom?: IPosition;
+  left?: IPosition;
+  right?: IPosition;
+};

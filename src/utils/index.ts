@@ -1,7 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { cloneDeep } from "lodash";
 import { MoveKeyCodes, SQUARE_GRID_SIZE } from "../constants";
-import type { Direction, ICell, IPosition, IPowerUp } from "../types";
+import type { BombTilesAround, Direction, ICell, IPosition, IPowerUp } from "../types";
+import type { LayoutConfig } from "./computeCellGridPositions";
 
 export function getTwoRandomItems<T>(arr: T[]): [T, T] | null {
   if (arr.length < 2) return null;
@@ -385,4 +386,156 @@ export function checkTilesToGetPowerUp(
     hasTileToGetTeleportATile: !!flags?.teleportATile,
     hasTileToGetBomb: !!flags?.bomb,
   };
+}
+
+function calculateCornerCoordinate(position : IPosition, layoutConfig: LayoutConfig) {
+  return {
+    topLeft: { top: position.top - layoutConfig.layoutSpacing / 2, left: position.left - layoutConfig.layoutSpacing / 2 },
+    topRight: { top: position.top - layoutConfig.layoutSpacing / 2, left: position.left + layoutConfig.cellSize + layoutConfig.layoutSpacing / 2 },
+    bottomLeft: { top: position.top + layoutConfig.cellSize + layoutConfig.layoutSpacing / 2, left: position.left - layoutConfig.layoutSpacing / 2 },
+    bottomRight: { top: position.top + layoutConfig.cellSize + layoutConfig.layoutSpacing / 2, left: position.left + layoutConfig.cellSize + layoutConfig.layoutSpacing / 2 },
+  }
+}
+
+function calculateCornerCoordinates(bombPosition: IPosition, bombAroundPositions: BombTilesAround, layoutConfig: LayoutConfig) {
+  const bombCornerCoordinates = calculateCornerCoordinate(bombPosition, layoutConfig);
+  
+  const bombAroundCornerCoordinates = {
+    top: bombAroundPositions.top ? calculateCornerCoordinate(bombAroundPositions.top, layoutConfig) : undefined,
+    bottom: bombAroundPositions.bottom ? calculateCornerCoordinate(bombAroundPositions.bottom, layoutConfig) : undefined,
+    left: bombAroundPositions.left ? calculateCornerCoordinate(bombAroundPositions.left, layoutConfig) : undefined,
+    right: bombAroundPositions.right ? calculateCornerCoordinate(bombAroundPositions.right, layoutConfig) : undefined,
+  }
+
+  return { bombCornerCoordinates, bombAroundCornerCoordinates };
+}
+
+
+export function drawBombEffect(bombPosition: IPosition, bombAroundPositions: BombTilesAround, layoutConfig: LayoutConfig) {
+  const { bombCornerCoordinates, bombAroundCornerCoordinates } = calculateCornerCoordinates(bombPosition, bombAroundPositions, layoutConfig);
+  if(!bombAroundCornerCoordinates.top && !bombAroundCornerCoordinates.bottom && !bombAroundCornerCoordinates.left && !bombAroundCornerCoordinates.right) {
+    return 'M ' + bombCornerCoordinates.topLeft.left + ' ' + bombCornerCoordinates.topLeft.top +
+    ' L ' + bombCornerCoordinates.topRight.left + ' ' + bombCornerCoordinates.topRight.top +
+    ' L ' + bombCornerCoordinates.bottomRight.left + ' ' + bombCornerCoordinates.bottomRight.top +
+    ' L ' + bombCornerCoordinates.bottomLeft.left + ' ' + bombCornerCoordinates.bottomLeft.top +
+    ' Z'; 
+  } else if(bombAroundCornerCoordinates.top && bombAroundCornerCoordinates.bottom && bombAroundCornerCoordinates.left && bombAroundCornerCoordinates.right) {
+    return 'M ' + bombAroundCornerCoordinates.top.topLeft.left + ' ' + bombAroundCornerCoordinates.top.topLeft.top +
+    ' L ' + bombAroundCornerCoordinates.top.topRight.left + ' ' + bombAroundCornerCoordinates.top.topRight.top +
+    ' L ' + bombAroundCornerCoordinates.top.bottomRight.left + ' ' + bombAroundCornerCoordinates.top.bottomRight.top +
+    ' L ' + bombAroundCornerCoordinates.right.topLeft.left + ' ' + bombAroundCornerCoordinates.right.topLeft.top +
+    ' L ' + bombAroundCornerCoordinates.right.topRight.left + ' ' + bombAroundCornerCoordinates.right.topRight.top +
+    ' L ' + bombAroundCornerCoordinates.right.bottomRight.left + ' ' + bombAroundCornerCoordinates.right.bottomRight.top +
+    ' L ' + bombAroundCornerCoordinates.right.bottomLeft.left + ' ' + bombAroundCornerCoordinates.right.bottomLeft.top +
+    ' L ' + bombAroundCornerCoordinates.bottom.topRight.left + ' ' + bombAroundCornerCoordinates.bottom.topRight.top +
+    ' L ' + bombAroundCornerCoordinates.bottom.bottomRight.left + ' ' + bombAroundCornerCoordinates.bottom.bottomRight.top +
+    ' L ' + bombAroundCornerCoordinates.bottom.bottomLeft.left + ' ' + bombAroundCornerCoordinates.bottom.bottomLeft.top +
+    ' L ' + bombAroundCornerCoordinates.bottom.topLeft.left + ' ' + bombAroundCornerCoordinates.bottom.topLeft.top +
+    ' L ' + bombAroundCornerCoordinates.left.bottomRight.left + ' ' + bombAroundCornerCoordinates.left.bottomRight.top +
+    ' L ' + bombAroundCornerCoordinates.left.bottomLeft.left + ' ' + bombAroundCornerCoordinates.left.bottomLeft.top +
+    ' L ' + bombAroundCornerCoordinates.left.topLeft.left + ' ' + bombAroundCornerCoordinates.left.topLeft.top +
+    ' L ' + bombAroundCornerCoordinates.left.topRight.left + ' ' + bombAroundCornerCoordinates.left.topRight.top +
+    ' Z'
+  } else if(bombAroundCornerCoordinates.top && bombAroundCornerCoordinates.left && bombAroundCornerCoordinates.right) {
+    return 'M ' + bombAroundCornerCoordinates.top.topLeft.left + ' ' + bombAroundCornerCoordinates.top.topLeft.top +
+    ' L ' + bombAroundCornerCoordinates.top.topRight.left + ' ' + bombAroundCornerCoordinates.top.topRight.top +
+    ' L ' + bombAroundCornerCoordinates.top.bottomRight.left + ' ' + bombAroundCornerCoordinates.top.bottomRight.top +
+    ' L ' + bombAroundCornerCoordinates.right.topLeft.left + ' ' + bombAroundCornerCoordinates.right.topLeft.top +
+    ' L ' + bombAroundCornerCoordinates.right.topRight.left + ' ' + bombAroundCornerCoordinates.right.topRight.top +
+    ' L ' + bombAroundCornerCoordinates.right.bottomRight.left + ' ' + bombAroundCornerCoordinates.right.bottomRight.top +
+    ' L ' + bombAroundCornerCoordinates.right.bottomLeft.left + ' ' + bombAroundCornerCoordinates.right.bottomLeft.top +
+    ' L ' + bombAroundCornerCoordinates.left.bottomRight.left + ' ' + bombAroundCornerCoordinates.left.bottomRight.top +
+    ' L ' + bombAroundCornerCoordinates.left.bottomLeft.left + ' ' + bombAroundCornerCoordinates.left.bottomLeft.top +
+    ' L ' + bombAroundCornerCoordinates.left.topLeft.left + ' ' + bombAroundCornerCoordinates.left.topLeft.top +
+    ' L ' + bombAroundCornerCoordinates.left.topRight.left + ' ' + bombAroundCornerCoordinates.left.topRight.top +
+    ' Z'
+  } else if(bombAroundCornerCoordinates.top && bombAroundCornerCoordinates.bottom && bombAroundCornerCoordinates.left) {
+    return 'M ' + bombAroundCornerCoordinates.top.topLeft.left + ' ' + bombAroundCornerCoordinates.top.topLeft.top +
+    ' L ' + bombAroundCornerCoordinates.top.topRight.left + ' ' + bombAroundCornerCoordinates.top.topRight.top +
+    ' L ' + bombAroundCornerCoordinates.top.bottomRight.left + ' ' + bombAroundCornerCoordinates.top.bottomRight.top +
+    ' L ' + bombAroundCornerCoordinates.bottom.topRight.left + ' ' + bombAroundCornerCoordinates.bottom.topRight.top +
+    ' L ' + bombAroundCornerCoordinates.bottom.bottomRight.left + ' ' + bombAroundCornerCoordinates.bottom.bottomRight.top +
+    ' L ' + bombAroundCornerCoordinates.bottom.bottomLeft.left + ' ' + bombAroundCornerCoordinates.bottom.bottomLeft.top +
+    ' L ' + bombAroundCornerCoordinates.bottom.topLeft.left + ' ' + bombAroundCornerCoordinates.bottom.topLeft.top +
+    ' L ' + bombAroundCornerCoordinates.left.bottomRight.left + ' '+ bombAroundCornerCoordinates.left.bottomRight.top +
+    ' L ' + bombAroundCornerCoordinates.left.bottomLeft.left + ' ' + bombAroundCornerCoordinates.left.bottomLeft.top +
+    ' L ' + bombAroundCornerCoordinates.left.topLeft.left + ' ' + bombAroundCornerCoordinates.left.topLeft.top +
+    ' L ' + bombAroundCornerCoordinates.left.topRight.left + ' ' + bombAroundCornerCoordinates.left.topRight.top +
+    ' Z'
+  } else if (bombAroundCornerCoordinates.top && bombAroundCornerCoordinates.bottom && bombAroundCornerCoordinates.right) {
+    return 'M ' + bombAroundCornerCoordinates.top.topLeft.left + ' ' + bombAroundCornerCoordinates.top.topLeft.top +
+    ' L ' + bombAroundCornerCoordinates.top.topRight.left + ' ' + bombAroundCornerCoordinates.top.topRight.top +
+    ' L ' + bombAroundCornerCoordinates.top.bottomRight.left + ' ' + bombAroundCornerCoordinates.top.bottomRight.top +
+    ' L ' + bombAroundCornerCoordinates.right.topLeft.left + ' ' + bombAroundCornerCoordinates.right.topLeft.top +
+    ' L ' + bombAroundCornerCoordinates.right.topRight.left + ' ' + bombAroundCornerCoordinates.right.topRight.top +
+    ' L ' + bombAroundCornerCoordinates.right.bottomRight.left + ' ' + bombAroundCornerCoordinates.right.bottomRight.top +
+    ' L ' + bombAroundCornerCoordinates.right.bottomLeft.left + ' ' + bombAroundCornerCoordinates.right.bottomLeft.top +
+    ' L ' + bombAroundCornerCoordinates.bottom.topRight.left + ' '+ bombAroundCornerCoordinates.bottom.topRight.top +
+    ' L ' + bombAroundCornerCoordinates.bottom.bottomRight.left + ' ' + bombAroundCornerCoordinates.bottom.bottomRight.top +
+    ' L ' + bombAroundCornerCoordinates.bottom.bottomLeft.left + ' ' + bombAroundCornerCoordinates.bottom.bottomLeft.top +
+    ' L ' + bombAroundCornerCoordinates.bottom.topLeft.left + ' ' + bombAroundCornerCoordinates.bottom.topLeft.top +
+    ' Z'
+  }else if(bombAroundCornerCoordinates.left && bombAroundCornerCoordinates.bottom && bombAroundCornerCoordinates.right) {
+    return 'M ' + bombAroundCornerCoordinates.left.topLeft.left + ' ' + bombAroundCornerCoordinates.left.topLeft.top +
+    ' L ' + bombAroundCornerCoordinates.left.topRight.left + ' ' + bombAroundCornerCoordinates.left.topRight.top +
+    ' L ' + bombAroundCornerCoordinates.right.topLeft.left + ' ' + bombAroundCornerCoordinates.right.topRight.top +
+    ' L ' + bombAroundCornerCoordinates.right.topRight.left + ' ' + bombAroundCornerCoordinates.right.topRight.top +
+    ' L ' + bombAroundCornerCoordinates.right.bottomRight.left + ' ' + bombAroundCornerCoordinates.right.bottomRight.top +
+    ' L ' + bombAroundCornerCoordinates.right.bottomLeft.left + ' ' + bombAroundCornerCoordinates.right.bottomLeft.top +
+    ' L ' + bombAroundCornerCoordinates.bottom.topRight.left + ' ' + bombAroundCornerCoordinates.bottom.topRight.top +
+    ' L ' + bombAroundCornerCoordinates.bottom.bottomRight.left + ' ' + bombAroundCornerCoordinates.bottom.bottomRight.top +
+    ' L ' + bombAroundCornerCoordinates.bottom.bottomLeft.left + ' ' + bombAroundCornerCoordinates.bottom.bottomLeft.top +
+    ' L ' + bombAroundCornerCoordinates.bottom.topLeft.left + ' ' + bombAroundCornerCoordinates.bottom.topLeft.top +
+    ' L ' + bombAroundCornerCoordinates.left.bottomRight.left + ' ' + bombAroundCornerCoordinates.left.bottomRight.top +
+    ' L ' + bombAroundCornerCoordinates.left.bottomLeft.left + ' ' + bombAroundCornerCoordinates.left.bottomLeft.top +
+    ' Z'
+  }else if(bombAroundCornerCoordinates.top && bombAroundCornerCoordinates.left) {
+    return 'M ' + bombAroundCornerCoordinates.top.topLeft.left + ' ' + bombAroundCornerCoordinates.top.topLeft.top +
+    ' L ' + bombAroundCornerCoordinates.top.topRight.left + ' ' + bombAroundCornerCoordinates.top.topRight.top +
+    ' L ' + bombCornerCoordinates.bottomRight.left + ' ' + bombCornerCoordinates.bottomRight.top +
+    ' L ' + bombAroundCornerCoordinates.left.bottomLeft.left + ' ' + bombAroundCornerCoordinates.left.bottomLeft.top +
+    ' L ' + bombAroundCornerCoordinates.left.topLeft.left + ' ' + bombAroundCornerCoordinates.left.topLeft.top +
+    ' L ' + bombAroundCornerCoordinates.left.topRight.left + ' ' + bombAroundCornerCoordinates.left.topRight.top +
+    ' Z'
+  }else if(bombAroundCornerCoordinates.top && bombAroundCornerCoordinates.right) {
+    return 'M ' + bombAroundCornerCoordinates.top.topLeft.left + ' ' + bombAroundCornerCoordinates.top.topLeft.top +
+    ' L ' + bombAroundCornerCoordinates.top.topRight.left + ' ' + bombAroundCornerCoordinates.top.topRight.top +
+    ' L ' + bombAroundCornerCoordinates.top.bottomRight.left + ' ' + bombAroundCornerCoordinates.top.bottomRight.top +
+    ' L ' + bombAroundCornerCoordinates.right.topLeft.left + ' ' + bombAroundCornerCoordinates.right.topLeft.top +
+    ' L ' + bombAroundCornerCoordinates.right.topRight.left + ' ' + bombAroundCornerCoordinates.right.topRight.top +
+    ' L ' + bombAroundCornerCoordinates.right.bottomRight.left + ' ' + bombAroundCornerCoordinates.right.bottomRight.top +
+    ' L ' + bombCornerCoordinates.bottomLeft.left + ' ' + bombCornerCoordinates.bottomLeft.top +
+    ' Z'
+  }else if (bombAroundCornerCoordinates.top && bombAroundCornerCoordinates.bottom) {
+    return 'M ' + bombAroundCornerCoordinates.top.topLeft.left + ' ' + bombAroundCornerCoordinates.top.topLeft.top +
+    ' L ' + bombAroundCornerCoordinates.top.topRight.left + ' ' + bombAroundCornerCoordinates.top.topRight.top +
+    ' L ' + bombAroundCornerCoordinates.bottom.bottomRight.left + ' ' + bombAroundCornerCoordinates.bottom.bottomRight.top +
+    ' L ' + bombAroundCornerCoordinates.bottom.bottomLeft.left + ' ' + bombAroundCornerCoordinates.bottom.bottomLeft.top +
+    ' Z'
+  }else if(bombAroundCornerCoordinates.left && bombAroundCornerCoordinates.bottom) {
+    return 'M ' + bombAroundCornerCoordinates.left.topLeft.left + ' ' + bombAroundCornerCoordinates.left.topLeft.top +
+    ' L ' + bombCornerCoordinates.topRight.left + ' ' + bombCornerCoordinates.topRight.top +
+    ' L ' + bombAroundCornerCoordinates.bottom.bottomRight.left + ' ' + bombAroundCornerCoordinates.bottom.bottomRight.top +
+    ' L ' + bombAroundCornerCoordinates.bottom.bottomLeft.left + ' ' + bombAroundCornerCoordinates.bottom.bottomLeft.top +
+    ' L ' + bombAroundCornerCoordinates.bottom.topLeft.left + ' ' + bombAroundCornerCoordinates.bottom.topLeft.top +
+    ' L ' + bombAroundCornerCoordinates.left.bottomRight.left + ' ' + bombAroundCornerCoordinates.left.bottomRight.top +
+    ' L ' + bombAroundCornerCoordinates.left.bottomLeft.left + ' ' + bombAroundCornerCoordinates.left.bottomLeft.top +
+    ' Z'
+  }else if (bombAroundCornerCoordinates.right && bombAroundCornerCoordinates.bottom) {
+    return 'M ' + bombCornerCoordinates.topLeft.left + ' ' + bombCornerCoordinates.topLeft.top +
+    ' L ' + bombAroundCornerCoordinates.right.topRight.left + ' ' + bombAroundCornerCoordinates.right.topRight.top +
+    ' L ' + bombAroundCornerCoordinates.right.bottomRight.left + ' ' + bombAroundCornerCoordinates.right.bottomRight.top +
+    ' L ' + bombAroundCornerCoordinates.right.bottomLeft.left + ' ' + bombAroundCornerCoordinates.right.bottomLeft.top +
+    ' L ' + bombAroundCornerCoordinates.bottom.topRight.left + ' ' + bombAroundCornerCoordinates.bottom.topRight.top +
+    ' L ' + bombAroundCornerCoordinates.bottom.bottomRight.left + ' ' + bombAroundCornerCoordinates.bottom.bottomRight.top +
+    ' L ' + bombAroundCornerCoordinates.bottom.bottomLeft.left + ' ' + bombAroundCornerCoordinates.bottom.bottomLeft.top +
+    ' Z'
+  }else if(bombAroundCornerCoordinates.left && bombAroundCornerCoordinates.right) {
+    return 'M ' + bombAroundCornerCoordinates.left.bottomLeft.left + ' ' + bombAroundCornerCoordinates.left.bottomLeft.top +
+    ' L ' + bombAroundCornerCoordinates.left.topLeft.left + ' ' + bombAroundCornerCoordinates.left.topLeft.top +
+    ' L ' + bombAroundCornerCoordinates.right.topRight.left + ' ' + bombAroundCornerCoordinates.right.topRight.top +
+    ' L ' + bombAroundCornerCoordinates.right.bottomRight.left + ' ' + bombAroundCornerCoordinates.right.bottomRight.top +
+    ' Z'
+  }
+  return '';
 }
