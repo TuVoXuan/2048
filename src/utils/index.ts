@@ -413,6 +413,7 @@ function calculateCornerCoordinates(bombPosition: IPosition, bombAroundPositions
 
 export function drawBombEffect(bombPosition: IPosition, bombAroundPositions: BombTilesAround, layoutConfig: LayoutConfig) {
   const { bombCornerCoordinates, bombAroundCornerCoordinates } = calculateCornerCoordinates(bombPosition, bombAroundPositions, layoutConfig);
+  console.log("bombAroundCornerCoordinates: ", bombAroundCornerCoordinates);
   if(!bombAroundCornerCoordinates.top && !bombAroundCornerCoordinates.bottom && !bombAroundCornerCoordinates.left && !bombAroundCornerCoordinates.right) {
     return 'M ' + bombCornerCoordinates.topLeft.left + ' ' + bombCornerCoordinates.topLeft.top +
     ' L ' + bombCornerCoordinates.topRight.left + ' ' + bombCornerCoordinates.topRight.top +
@@ -422,19 +423,24 @@ export function drawBombEffect(bombPosition: IPosition, bombAroundPositions: Bom
   } else if(bombAroundCornerCoordinates.top && bombAroundCornerCoordinates.bottom && bombAroundCornerCoordinates.left && bombAroundCornerCoordinates.right) {
     return 'M ' + bombAroundCornerCoordinates.top.topLeft.left + ' ' + bombAroundCornerCoordinates.top.topLeft.top +
     ' L ' + bombAroundCornerCoordinates.top.topRight.left + ' ' + bombAroundCornerCoordinates.top.topRight.top +
-    ' L ' + bombAroundCornerCoordinates.top.bottomRight.left + ' ' + bombAroundCornerCoordinates.top.bottomRight.top +
-    ' L ' + bombAroundCornerCoordinates.right.topLeft.left + ' ' + bombAroundCornerCoordinates.right.topLeft.top +
+    ' L ' + bombAroundCornerCoordinates.top.bottomRight.left + ' ' + (bombAroundCornerCoordinates.top.bottomRight.top - layoutConfig.layoutSpacing) +
+    ' Q ' + bombAroundCornerCoordinates.top.bottomRight.left + ' ' + bombAroundCornerCoordinates.right.topLeft.top +
+    ' ' + (bombAroundCornerCoordinates.right.topLeft.left + layoutConfig.layoutSpacing) + ' ' + bombAroundCornerCoordinates.right.topLeft.top +
     ' L ' + bombAroundCornerCoordinates.right.topRight.left + ' ' + bombAroundCornerCoordinates.right.topRight.top +
     ' L ' + bombAroundCornerCoordinates.right.bottomRight.left + ' ' + bombAroundCornerCoordinates.right.bottomRight.top +
-    ' L ' + bombAroundCornerCoordinates.right.bottomLeft.left + ' ' + bombAroundCornerCoordinates.right.bottomLeft.top +
-    ' L ' + bombAroundCornerCoordinates.bottom.topRight.left + ' ' + bombAroundCornerCoordinates.bottom.topRight.top +
+    ' L ' + (bombAroundCornerCoordinates.right.bottomLeft.left + layoutConfig.layoutSpacing) + ' ' + bombAroundCornerCoordinates.right.bottomLeft.top +
+    ' Q ' + bombAroundCornerCoordinates.bottom.topRight.left + ' ' + bombAroundCornerCoordinates.right.bottomLeft.top +
+    ' ' + bombAroundCornerCoordinates.bottom.topRight.left + ' ' + (bombAroundCornerCoordinates.bottom.topRight.top + layoutConfig.layoutSpacing) +
     ' L ' + bombAroundCornerCoordinates.bottom.bottomRight.left + ' ' + bombAroundCornerCoordinates.bottom.bottomRight.top +
     ' L ' + bombAroundCornerCoordinates.bottom.bottomLeft.left + ' ' + bombAroundCornerCoordinates.bottom.bottomLeft.top +
-    ' L ' + bombAroundCornerCoordinates.bottom.topLeft.left + ' ' + bombAroundCornerCoordinates.bottom.topLeft.top +
-    ' L ' + bombAroundCornerCoordinates.left.bottomRight.left + ' ' + bombAroundCornerCoordinates.left.bottomRight.top +
+    ' L ' + bombAroundCornerCoordinates.bottom.topLeft.left + ' ' + (bombAroundCornerCoordinates.bottom.topLeft.top + layoutConfig.layoutSpacing) +
+    ' Q ' + bombAroundCornerCoordinates.bottom.topLeft.left + ' ' + bombAroundCornerCoordinates.left.bottomRight.top +
+    ' ' + (bombAroundCornerCoordinates.left.bottomRight.left - layoutConfig.layoutSpacing) + ' ' + bombAroundCornerCoordinates.left.bottomRight.top +
     ' L ' + bombAroundCornerCoordinates.left.bottomLeft.left + ' ' + bombAroundCornerCoordinates.left.bottomLeft.top +
     ' L ' + bombAroundCornerCoordinates.left.topLeft.left + ' ' + bombAroundCornerCoordinates.left.topLeft.top +
-    ' L ' + bombAroundCornerCoordinates.left.topRight.left + ' ' + bombAroundCornerCoordinates.left.topRight.top +
+    ' L ' + (bombAroundCornerCoordinates.left.topRight.left - layoutConfig.layoutSpacing) + ' ' + bombAroundCornerCoordinates.left.topRight.top +
+    ' Q ' + bombAroundCornerCoordinates.left.topRight.left + ' ' + bombAroundCornerCoordinates.left.topRight.top +
+    ' ' + bombAroundCornerCoordinates.left.topRight.left + ' ' + (bombAroundCornerCoordinates.left.topRight.top - layoutConfig.layoutSpacing) + 
     ' Z'
   } else if(bombAroundCornerCoordinates.top && bombAroundCornerCoordinates.left && bombAroundCornerCoordinates.right) {
     return 'M ' + bombAroundCornerCoordinates.top.topLeft.left + ' ' + bombAroundCornerCoordinates.top.topLeft.top +

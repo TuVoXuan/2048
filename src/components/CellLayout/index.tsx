@@ -113,8 +113,7 @@ export default function CellLayout() {
       setBombPath(path);
     }
   }, [bombTileAround, bombPositionState]);
-  console.log("bombPositionState: ", bombPositionState);
-  console.log("bombPath: ", bombPath);
+  console.log("bombTileAround: ", bombTileAround);
 
   return (
     <section
