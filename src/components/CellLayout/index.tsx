@@ -40,31 +40,41 @@ export default function CellLayout() {
             show: target.dataset?.type === "empty" ? true : false,
           });
         } else if (powerUpAction === "bomb") {
+          const bombTile = cells.find(
+            (cell) =>
+              cell.position.column === position.column &&
+              cell.position.row === position.row
+          );
+          if (!bombTile) return;
           setBombPositionState({
             position,
             show: target.dataset?.type === "cell" ? true : false,
           });
           const bombTiles: BombTilesAround = {};
-          const topTile = cellGridPositions.find(
+          const topTile = cells.find(
             (cell) =>
-              cell.row === position.row - 1 && cell.column === position.column
+              cell.position.row === position.row - 1 &&
+              cell.position.column === position.column
           );
-          const bottomTile = cellGridPositions.find(
+          const bottomTile = cells.find(
             (cell) =>
-              cell.row === position.row + 1 && cell.column === position.column
+              cell.position.row === position.row + 1 &&
+              cell.position.column === position.column
           );
-          const leftTile = cellGridPositions.find(
+          const leftTile = cells.find(
             (cell) =>
-              cell.row === position.row && cell.column === position.column - 1
+              cell.position.row === position.row &&
+              cell.position.column === position.column - 1
           );
-          const rightTile = cellGridPositions.find(
+          const rightTile = cells.find(
             (cell) =>
-              cell.row === position.row && cell.column === position.column + 1
+              cell.position.row === position.row &&
+              cell.position.column === position.column + 1
           );
-          if (topTile) bombTiles.top = topTile;
-          if (bottomTile) bombTiles.bottom = bottomTile;
-          if (leftTile) bombTiles.left = leftTile;
-          if (rightTile) bombTiles.right = rightTile;
+          if (topTile) bombTiles.top = topTile.position;
+          if (bottomTile) bombTiles.bottom = bottomTile.position;
+          if (leftTile) bombTiles.left = leftTile.position;
+          if (rightTile) bombTiles.right = rightTile.position;
           setBombTileAround(bombTiles);
         }
       }
@@ -99,6 +109,9 @@ export default function CellLayout() {
       if (cellLayout) {
         cellLayout.removeEventListener("mouseover", handleMouseOverCellLayout);
         setTeleportPositionState(undefined);
+        setBombTileAround({});
+        setBombPositionState(undefined);
+        setBombPath("");
       }
     };
   }, [powerUpAction, tileToTeleport]);
@@ -113,7 +126,6 @@ export default function CellLayout() {
       setBombPath(path);
     }
   }, [bombTileAround, bombPositionState]);
-  console.log("bombTileAround: ", bombTileAround);
 
   return (
     <section
@@ -172,12 +184,10 @@ export default function CellLayout() {
       <AnimatePresence>
         {bombPositionState?.position && (
           <motion.svg
-            key={"bombEffect"}
-            layout
-            transition={{
-              type: "spring",
-              duration: 0.3,
-            }}
+            key={"bombPath"}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
             style={{
               height:
                 layout.cellSize * SQUARE_GRID_SIZE +

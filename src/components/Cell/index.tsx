@@ -177,7 +177,6 @@ export default function Cell({
     if (
       powerUpAction === "swapTwoTiles" ||
       powerUpAction === "deleteTilesByNumber" ||
-      powerUpAction === "bomb" ||
       (powerUpAction === "teleportATile" && !tileToTeleport)
     ) {
       return { scale: 1.1, cursor: "pointer" };

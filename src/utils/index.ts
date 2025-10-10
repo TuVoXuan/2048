@@ -410,137 +410,239 @@ function calculateCornerCoordinates(bombPosition: IPosition, bombAroundPositions
   return { bombCornerCoordinates, bombAroundCornerCoordinates };
 }
 
+function drawBorderRadiusCorner(props:{prefix: 'M ' | ' L ',cornerPosition: {top: number, left: number}, layoutConfig: LayoutConfig, direction: 'topLeft' | 'topRight' | 'bottomLeft' | 'bottomRight', isInnerCorner?: boolean}) {
+ const {prefix, cornerPosition, layoutConfig, direction, isInnerCorner = false} = props;
+  const radius = layoutConfig.layoutSpacing;
+  if(direction === 'topLeft') {
+    return prefix + (cornerPosition.left - (isInnerCorner ? radius : 0)) + ' ' + (cornerPosition.top + (isInnerCorner ? 0: radius)) +
+    ' Q ' + cornerPosition.left + ' ' + cornerPosition.top +
+    ' ' + (cornerPosition.left + (isInnerCorner ? 0 : radius))+ ' ' + (cornerPosition.top - (isInnerCorner ? radius : 0));
+  } else if(direction === 'topRight') {
+    return prefix + (cornerPosition.left - (isInnerCorner ? 0 : radius)) + ' ' + (cornerPosition.top - (isInnerCorner ? radius : 0)) +
+    ' Q ' + cornerPosition.left + ' ' + cornerPosition.top +
+    ' ' + (cornerPosition.left + (isInnerCorner ? radius : 0)) + ' ' + (cornerPosition.top + (isInnerCorner ? 0 : radius));
+  } else if(direction === 'bottomRight') {
+    return prefix + (cornerPosition.left + (isInnerCorner ? radius : 0)) + ' ' + (cornerPosition.top - (isInnerCorner ? 0 : radius)) +
+    ' Q ' + cornerPosition.left + ' ' + cornerPosition.top +
+    ' ' + (cornerPosition.left - (isInnerCorner ? 0 : radius)) + ' ' + (cornerPosition.top + (isInnerCorner ? radius : 0));
+  } else if(direction === 'bottomLeft') {
+    return prefix + (cornerPosition.left + (isInnerCorner ? 0 : radius)) + ' ' + (cornerPosition.top + (isInnerCorner ? radius : 0)) +
+    ' Q ' + cornerPosition.left + ' ' + cornerPosition.top +
+    ' ' + (cornerPosition.left - (isInnerCorner ? radius : 0)) + ' ' + (cornerPosition.top - (isInnerCorner ? 0 : radius));
+  }
+  return '';
+}
+
 
 export function drawBombEffect(bombPosition: IPosition, bombAroundPositions: BombTilesAround, layoutConfig: LayoutConfig) {
   const { bombCornerCoordinates, bombAroundCornerCoordinates } = calculateCornerCoordinates(bombPosition, bombAroundPositions, layoutConfig);
-  console.log("bombAroundCornerCoordinates: ", bombAroundCornerCoordinates);
   if(!bombAroundCornerCoordinates.top && !bombAroundCornerCoordinates.bottom && !bombAroundCornerCoordinates.left && !bombAroundCornerCoordinates.right) {
-    return 'M ' + bombCornerCoordinates.topLeft.left + ' ' + bombCornerCoordinates.topLeft.top +
-    ' L ' + bombCornerCoordinates.topRight.left + ' ' + bombCornerCoordinates.topRight.top +
-    ' L ' + bombCornerCoordinates.bottomRight.left + ' ' + bombCornerCoordinates.bottomRight.top +
-    ' L ' + bombCornerCoordinates.bottomLeft.left + ' ' + bombCornerCoordinates.bottomLeft.top +
-    ' Z'; 
+    // ______
+    // |    |
+    // |____|
+    return drawBorderRadiusCorner({prefix: 'M ', cornerPosition: bombCornerCoordinates.topLeft, layoutConfig, direction: 'topLeft'}) +
+    drawBorderRadiusCorner({prefix: ' L ', cornerPosition: bombCornerCoordinates.topRight, layoutConfig, direction: 'topRight'}) +
+    drawBorderRadiusCorner({prefix: ' L ', cornerPosition: bombCornerCoordinates.bottomRight, layoutConfig, direction: 'bottomRight'}) +
+    drawBorderRadiusCorner({prefix: ' L ', cornerPosition: bombCornerCoordinates.bottomLeft, layoutConfig, direction: 'bottomLeft'}) +
+    ' Z';
   } else if(bombAroundCornerCoordinates.top && bombAroundCornerCoordinates.bottom && bombAroundCornerCoordinates.left && bombAroundCornerCoordinates.right) {
-    return 'M ' + bombAroundCornerCoordinates.top.topLeft.left + ' ' + bombAroundCornerCoordinates.top.topLeft.top +
-    ' L ' + bombAroundCornerCoordinates.top.topRight.left + ' ' + bombAroundCornerCoordinates.top.topRight.top +
-    ' L ' + bombAroundCornerCoordinates.top.bottomRight.left + ' ' + (bombAroundCornerCoordinates.top.bottomRight.top - layoutConfig.layoutSpacing) +
-    ' Q ' + bombAroundCornerCoordinates.top.bottomRight.left + ' ' + bombAroundCornerCoordinates.right.topLeft.top +
-    ' ' + (bombAroundCornerCoordinates.right.topLeft.left + layoutConfig.layoutSpacing) + ' ' + bombAroundCornerCoordinates.right.topLeft.top +
-    ' L ' + bombAroundCornerCoordinates.right.topRight.left + ' ' + bombAroundCornerCoordinates.right.topRight.top +
-    ' L ' + bombAroundCornerCoordinates.right.bottomRight.left + ' ' + bombAroundCornerCoordinates.right.bottomRight.top +
-    ' L ' + (bombAroundCornerCoordinates.right.bottomLeft.left + layoutConfig.layoutSpacing) + ' ' + bombAroundCornerCoordinates.right.bottomLeft.top +
-    ' Q ' + bombAroundCornerCoordinates.bottom.topRight.left + ' ' + bombAroundCornerCoordinates.right.bottomLeft.top +
-    ' ' + bombAroundCornerCoordinates.bottom.topRight.left + ' ' + (bombAroundCornerCoordinates.bottom.topRight.top + layoutConfig.layoutSpacing) +
-    ' L ' + bombAroundCornerCoordinates.bottom.bottomRight.left + ' ' + bombAroundCornerCoordinates.bottom.bottomRight.top +
-    ' L ' + bombAroundCornerCoordinates.bottom.bottomLeft.left + ' ' + bombAroundCornerCoordinates.bottom.bottomLeft.top +
-    ' L ' + bombAroundCornerCoordinates.bottom.topLeft.left + ' ' + (bombAroundCornerCoordinates.bottom.topLeft.top + layoutConfig.layoutSpacing) +
-    ' Q ' + bombAroundCornerCoordinates.bottom.topLeft.left + ' ' + bombAroundCornerCoordinates.left.bottomRight.top +
-    ' ' + (bombAroundCornerCoordinates.left.bottomRight.left - layoutConfig.layoutSpacing) + ' ' + bombAroundCornerCoordinates.left.bottomRight.top +
-    ' L ' + bombAroundCornerCoordinates.left.bottomLeft.left + ' ' + bombAroundCornerCoordinates.left.bottomLeft.top +
-    ' L ' + bombAroundCornerCoordinates.left.topLeft.left + ' ' + bombAroundCornerCoordinates.left.topLeft.top +
-    ' L ' + (bombAroundCornerCoordinates.left.topRight.left - layoutConfig.layoutSpacing) + ' ' + bombAroundCornerCoordinates.left.topRight.top +
-    ' Q ' + bombAroundCornerCoordinates.left.topRight.left + ' ' + bombAroundCornerCoordinates.left.topRight.top +
-    ' ' + bombAroundCornerCoordinates.left.topRight.left + ' ' + (bombAroundCornerCoordinates.left.topRight.top - layoutConfig.layoutSpacing) + 
+    //       ______
+    //       |    |
+    // ______|    |______
+    //|                  |
+    //|______      ______|
+    //       |    |
+    //       |____|
+
+    return drawBorderRadiusCorner({prefix: 'M ', cornerPosition: bombAroundCornerCoordinates.top.topLeft, layoutConfig, direction: 'topLeft'}) +
+    drawBorderRadiusCorner({prefix: ' L ', cornerPosition: bombAroundCornerCoordinates.top.topRight, layoutConfig, direction: 'topRight'}) +
+    drawBorderRadiusCorner({prefix: ' L ', cornerPosition: bombAroundCornerCoordinates.top.bottomRight, layoutConfig, direction: 'topRight', isInnerCorner: true}) + 
+    drawBorderRadiusCorner({prefix : ' L ', cornerPosition:  bombAroundCornerCoordinates.right.topRight, layoutConfig, direction : 'topRight'}) +
+    drawBorderRadiusCorner({prefix: ' L ', cornerPosition: bombAroundCornerCoordinates.right.bottomRight, layoutConfig, direction: 'bottomRight'}) +
+    drawBorderRadiusCorner({prefix: ' L ', cornerPosition: bombAroundCornerCoordinates.right.bottomLeft, layoutConfig, direction: 'bottomRight', isInnerCorner: true}) +
+    drawBorderRadiusCorner({prefix: ' L ', cornerPosition: bombAroundCornerCoordinates.bottom.bottomRight, layoutConfig, direction: 'bottomRight'}) +
+    drawBorderRadiusCorner({prefix: ' L ', cornerPosition: bombAroundCornerCoordinates.bottom.bottomLeft, layoutConfig, direction: 'bottomLeft'}) +
+    drawBorderRadiusCorner({prefix: ' L ', cornerPosition: bombAroundCornerCoordinates.bottom.topLeft, layoutConfig, direction: 'bottomLeft', isInnerCorner: true}) +
+    drawBorderRadiusCorner({prefix: ' L ', cornerPosition: bombAroundCornerCoordinates.left.bottomLeft, layoutConfig, direction: 'bottomLeft'}) +
+    drawBorderRadiusCorner({prefix: ' L ', cornerPosition: bombAroundCornerCoordinates.left.topLeft, layoutConfig, direction: 'topLeft'}) +
+    drawBorderRadiusCorner({prefix:' L ', cornerPosition: bombAroundCornerCoordinates.left.topRight, layoutConfig, direction:'topLeft', isInnerCorner:true})+
     ' Z'
   } else if(bombAroundCornerCoordinates.top && bombAroundCornerCoordinates.left && bombAroundCornerCoordinates.right) {
-    return 'M ' + bombAroundCornerCoordinates.top.topLeft.left + ' ' + bombAroundCornerCoordinates.top.topLeft.top +
-    ' L ' + bombAroundCornerCoordinates.top.topRight.left + ' ' + bombAroundCornerCoordinates.top.topRight.top +
-    ' L ' + bombAroundCornerCoordinates.top.bottomRight.left + ' ' + bombAroundCornerCoordinates.top.bottomRight.top +
-    ' L ' + bombAroundCornerCoordinates.right.topLeft.left + ' ' + bombAroundCornerCoordinates.right.topLeft.top +
-    ' L ' + bombAroundCornerCoordinates.right.topRight.left + ' ' + bombAroundCornerCoordinates.right.topRight.top +
-    ' L ' + bombAroundCornerCoordinates.right.bottomRight.left + ' ' + bombAroundCornerCoordinates.right.bottomRight.top +
-    ' L ' + bombAroundCornerCoordinates.right.bottomLeft.left + ' ' + bombAroundCornerCoordinates.right.bottomLeft.top +
-    ' L ' + bombAroundCornerCoordinates.left.bottomRight.left + ' ' + bombAroundCornerCoordinates.left.bottomRight.top +
-    ' L ' + bombAroundCornerCoordinates.left.bottomLeft.left + ' ' + bombAroundCornerCoordinates.left.bottomLeft.top +
-    ' L ' + bombAroundCornerCoordinates.left.topLeft.left + ' ' + bombAroundCornerCoordinates.left.topLeft.top +
-    ' L ' + bombAroundCornerCoordinates.left.topRight.left + ' ' + bombAroundCornerCoordinates.left.topRight.top +
+    //         ______
+    //         |    |
+    //   ______|    |______
+    //  |                  |
+    //  |__________________|
+    return drawBorderRadiusCorner({prefix: 'M ', cornerPosition: bombAroundCornerCoordinates.top.topLeft, layoutConfig, direction: 'topLeft' }) +
+    drawBorderRadiusCorner({prefix: ' L ', cornerPosition: bombAroundCornerCoordinates.top.topRight, layoutConfig, direction: 'topRight' }) +
+    drawBorderRadiusCorner({prefix: ' L ', cornerPosition: bombAroundCornerCoordinates.top.bottomRight, layoutConfig, direction: 'topRight', isInnerCorner: true }) +
+    drawBorderRadiusCorner({prefix: ' L ', cornerPosition: bombAroundCornerCoordinates.right.topRight, layoutConfig, direction: 'topRight' }) +
+    drawBorderRadiusCorner({prefix: ' L ', cornerPosition: bombAroundCornerCoordinates.right.bottomRight, layoutConfig, direction: 'bottomRight' }) +
+    drawBorderRadiusCorner({prefix: ' L ', cornerPosition: bombAroundCornerCoordinates.left.bottomLeft, layoutConfig, direction: 'bottomLeft' }) +
+    drawBorderRadiusCorner({prefix: ' L ', cornerPosition: bombAroundCornerCoordinates.left.topLeft, layoutConfig, direction: 'topLeft' }) +
+    drawBorderRadiusCorner({prefix: ' L ', cornerPosition: bombAroundCornerCoordinates.left.topRight, layoutConfig, direction: 'topLeft', isInnerCorner: true }) +
     ' Z'
   } else if(bombAroundCornerCoordinates.top && bombAroundCornerCoordinates.bottom && bombAroundCornerCoordinates.left) {
-    return 'M ' + bombAroundCornerCoordinates.top.topLeft.left + ' ' + bombAroundCornerCoordinates.top.topLeft.top +
-    ' L ' + bombAroundCornerCoordinates.top.topRight.left + ' ' + bombAroundCornerCoordinates.top.topRight.top +
-    ' L ' + bombAroundCornerCoordinates.top.bottomRight.left + ' ' + bombAroundCornerCoordinates.top.bottomRight.top +
-    ' L ' + bombAroundCornerCoordinates.bottom.topRight.left + ' ' + bombAroundCornerCoordinates.bottom.topRight.top +
-    ' L ' + bombAroundCornerCoordinates.bottom.bottomRight.left + ' ' + bombAroundCornerCoordinates.bottom.bottomRight.top +
-    ' L ' + bombAroundCornerCoordinates.bottom.bottomLeft.left + ' ' + bombAroundCornerCoordinates.bottom.bottomLeft.top +
-    ' L ' + bombAroundCornerCoordinates.bottom.topLeft.left + ' ' + bombAroundCornerCoordinates.bottom.topLeft.top +
-    ' L ' + bombAroundCornerCoordinates.left.bottomRight.left + ' '+ bombAroundCornerCoordinates.left.bottomRight.top +
-    ' L ' + bombAroundCornerCoordinates.left.bottomLeft.left + ' ' + bombAroundCornerCoordinates.left.bottomLeft.top +
-    ' L ' + bombAroundCornerCoordinates.left.topLeft.left + ' ' + bombAroundCornerCoordinates.left.topLeft.top +
-    ' L ' + bombAroundCornerCoordinates.left.topRight.left + ' ' + bombAroundCornerCoordinates.left.topRight.top +
+    //         ______
+    //         |    |
+    //   ______|    |
+    //  |           |
+    //  |______     |
+    //         |    |
+    //         |____|
+    return drawBorderRadiusCorner({prefix: 'M ', cornerPosition: bombAroundCornerCoordinates.top.topLeft, layoutConfig, direction: 'topLeft'}) +
+    drawBorderRadiusCorner({prefix: ' L ', cornerPosition: bombAroundCornerCoordinates.top.topRight, layoutConfig, direction: 'topRight'}) +
+    drawBorderRadiusCorner({prefix: ' L ', cornerPosition: bombAroundCornerCoordinates.bottom.bottomRight, layoutConfig, direction: 'bottomRight'}) +
+    drawBorderRadiusCorner({prefix: ' L ', cornerPosition: bombAroundCornerCoordinates.bottom.bottomLeft, layoutConfig, direction: 'bottomLeft'}) +
+    drawBorderRadiusCorner({prefix: ' L ', cornerPosition: bombAroundCornerCoordinates.bottom.topLeft, layoutConfig, direction: 'bottomLeft', isInnerCorner: true}) +
+    drawBorderRadiusCorner({prefix: ' L ', cornerPosition: bombAroundCornerCoordinates.left.bottomLeft, layoutConfig, direction: 'bottomLeft'}) +
+    drawBorderRadiusCorner({prefix: ' L ', cornerPosition: bombAroundCornerCoordinates.left.topLeft, layoutConfig, direction: 'topLeft'}) +
+    drawBorderRadiusCorner({prefix: ' L ', cornerPosition: bombAroundCornerCoordinates.left.topRight, layoutConfig, direction: 'topLeft', isInnerCorner: true}) +
     ' Z'
   } else if (bombAroundCornerCoordinates.top && bombAroundCornerCoordinates.bottom && bombAroundCornerCoordinates.right) {
-    return 'M ' + bombAroundCornerCoordinates.top.topLeft.left + ' ' + bombAroundCornerCoordinates.top.topLeft.top +
-    ' L ' + bombAroundCornerCoordinates.top.topRight.left + ' ' + bombAroundCornerCoordinates.top.topRight.top +
-    ' L ' + bombAroundCornerCoordinates.top.bottomRight.left + ' ' + bombAroundCornerCoordinates.top.bottomRight.top +
-    ' L ' + bombAroundCornerCoordinates.right.topLeft.left + ' ' + bombAroundCornerCoordinates.right.topLeft.top +
-    ' L ' + bombAroundCornerCoordinates.right.topRight.left + ' ' + bombAroundCornerCoordinates.right.topRight.top +
-    ' L ' + bombAroundCornerCoordinates.right.bottomRight.left + ' ' + bombAroundCornerCoordinates.right.bottomRight.top +
-    ' L ' + bombAroundCornerCoordinates.right.bottomLeft.left + ' ' + bombAroundCornerCoordinates.right.bottomLeft.top +
-    ' L ' + bombAroundCornerCoordinates.bottom.topRight.left + ' '+ bombAroundCornerCoordinates.bottom.topRight.top +
-    ' L ' + bombAroundCornerCoordinates.bottom.bottomRight.left + ' ' + bombAroundCornerCoordinates.bottom.bottomRight.top +
-    ' L ' + bombAroundCornerCoordinates.bottom.bottomLeft.left + ' ' + bombAroundCornerCoordinates.bottom.bottomLeft.top +
-    ' L ' + bombAroundCornerCoordinates.bottom.topLeft.left + ' ' + bombAroundCornerCoordinates.bottom.topLeft.top +
+    //  ______
+    //  |    |
+    //  |    |______
+    //  |           |
+    //  |     ______|
+    //  |    |
+    //  |____|
+    return drawBorderRadiusCorner({prefix: 'M ', cornerPosition: bombAroundCornerCoordinates.top.topLeft, layoutConfig, direction: 'topLeft'}) +
+    drawBorderRadiusCorner({prefix: ' L ', cornerPosition: bombAroundCornerCoordinates.top.topRight, layoutConfig, direction: 'topRight'}) +
+    drawBorderRadiusCorner({prefix: ' L ', cornerPosition: bombAroundCornerCoordinates.top.bottomRight, layoutConfig, direction: 'topRight', isInnerCorner: true}) +
+    drawBorderRadiusCorner({prefix: ' L ', cornerPosition: bombAroundCornerCoordinates.right.topRight, layoutConfig, direction: 'topRight'}) +
+    drawBorderRadiusCorner({prefix: ' L ', cornerPosition: bombAroundCornerCoordinates.right.bottomRight, layoutConfig, direction: 'bottomRight'}) +
+    drawBorderRadiusCorner({prefix: ' L ', cornerPosition: bombAroundCornerCoordinates.right.bottomLeft, layoutConfig, direction: 'bottomRight', isInnerCorner: true}) +
+    drawBorderRadiusCorner({prefix: ' L ', cornerPosition: bombAroundCornerCoordinates.bottom.bottomRight, layoutConfig, direction: 'bottomRight'}) +
+    drawBorderRadiusCorner({prefix: ' L ', cornerPosition: bombAroundCornerCoordinates.bottom.bottomLeft, layoutConfig, direction: 'bottomLeft'}) +
     ' Z'
   }else if(bombAroundCornerCoordinates.left && bombAroundCornerCoordinates.bottom && bombAroundCornerCoordinates.right) {
-    return 'M ' + bombAroundCornerCoordinates.left.topLeft.left + ' ' + bombAroundCornerCoordinates.left.topLeft.top +
-    ' L ' + bombAroundCornerCoordinates.left.topRight.left + ' ' + bombAroundCornerCoordinates.left.topRight.top +
-    ' L ' + bombAroundCornerCoordinates.right.topLeft.left + ' ' + bombAroundCornerCoordinates.right.topRight.top +
-    ' L ' + bombAroundCornerCoordinates.right.topRight.left + ' ' + bombAroundCornerCoordinates.right.topRight.top +
-    ' L ' + bombAroundCornerCoordinates.right.bottomRight.left + ' ' + bombAroundCornerCoordinates.right.bottomRight.top +
-    ' L ' + bombAroundCornerCoordinates.right.bottomLeft.left + ' ' + bombAroundCornerCoordinates.right.bottomLeft.top +
-    ' L ' + bombAroundCornerCoordinates.bottom.topRight.left + ' ' + bombAroundCornerCoordinates.bottom.topRight.top +
-    ' L ' + bombAroundCornerCoordinates.bottom.bottomRight.left + ' ' + bombAroundCornerCoordinates.bottom.bottomRight.top +
-    ' L ' + bombAroundCornerCoordinates.bottom.bottomLeft.left + ' ' + bombAroundCornerCoordinates.bottom.bottomLeft.top +
-    ' L ' + bombAroundCornerCoordinates.bottom.topLeft.left + ' ' + bombAroundCornerCoordinates.bottom.topLeft.top +
-    ' L ' + bombAroundCornerCoordinates.left.bottomRight.left + ' ' + bombAroundCornerCoordinates.left.bottomRight.top +
-    ' L ' + bombAroundCornerCoordinates.left.bottomLeft.left + ' ' + bombAroundCornerCoordinates.left.bottomLeft.top +
+    //   __________________
+    //  |                  |
+    //  |______      ______|
+    //         |    |
+    //         |____|
+    return drawBorderRadiusCorner({prefix: 'M ', cornerPosition: bombAroundCornerCoordinates.left.topLeft, layoutConfig, direction: 'topLeft'}) +
+    drawBorderRadiusCorner({prefix: ' L ', cornerPosition: bombAroundCornerCoordinates.right.topRight, layoutConfig, direction: 'topRight'}) +
+    drawBorderRadiusCorner({prefix: ' L ', cornerPosition: bombAroundCornerCoordinates.right.bottomRight, layoutConfig, direction: 'bottomRight'}) +
+    drawBorderRadiusCorner({prefix: ' L ', cornerPosition: bombAroundCornerCoordinates.right.bottomLeft, layoutConfig, direction: 'bottomRight', isInnerCorner: true}) +
+    drawBorderRadiusCorner({prefix: ' L ', cornerPosition: bombAroundCornerCoordinates.bottom.bottomRight, layoutConfig, direction: 'bottomRight'}) +
+    drawBorderRadiusCorner({prefix: ' L ', cornerPosition: bombAroundCornerCoordinates.bottom.bottomLeft, layoutConfig, direction: 'bottomLeft'}) +
+    drawBorderRadiusCorner({prefix: ' L ', cornerPosition: bombAroundCornerCoordinates.bottom.topLeft, layoutConfig, direction: 'bottomLeft', isInnerCorner: true}) +
+    drawBorderRadiusCorner({prefix: ' L ', cornerPosition: bombAroundCornerCoordinates.left.bottomLeft, layoutConfig, direction: 'bottomLeft'}) +
     ' Z'
   }else if(bombAroundCornerCoordinates.top && bombAroundCornerCoordinates.left) {
-    return 'M ' + bombAroundCornerCoordinates.top.topLeft.left + ' ' + bombAroundCornerCoordinates.top.topLeft.top +
-    ' L ' + bombAroundCornerCoordinates.top.topRight.left + ' ' + bombAroundCornerCoordinates.top.topRight.top +
-    ' L ' + bombCornerCoordinates.bottomRight.left + ' ' + bombCornerCoordinates.bottomRight.top +
-    ' L ' + bombAroundCornerCoordinates.left.bottomLeft.left + ' ' + bombAroundCornerCoordinates.left.bottomLeft.top +
-    ' L ' + bombAroundCornerCoordinates.left.topLeft.left + ' ' + bombAroundCornerCoordinates.left.topLeft.top +
-    ' L ' + bombAroundCornerCoordinates.left.topRight.left + ' ' + bombAroundCornerCoordinates.left.topRight.top +
+    //        _______
+    //        |     |
+    //  ______|     |
+    //  |           |
+    //  |___________|
+    return drawBorderRadiusCorner({prefix: 'M ', cornerPosition: bombAroundCornerCoordinates.top.topLeft, layoutConfig, direction: 'topLeft'}) + 
+    drawBorderRadiusCorner({prefix: ' L ', cornerPosition: bombAroundCornerCoordinates.top.topRight, layoutConfig, direction: 'topRight'}) +
+    drawBorderRadiusCorner({prefix: ' L ', cornerPosition: bombCornerCoordinates.bottomRight, layoutConfig, direction: 'bottomRight'}) +
+    drawBorderRadiusCorner({prefix: ' L ', cornerPosition: bombAroundCornerCoordinates.left.bottomLeft, layoutConfig, direction: 'bottomLeft'}) +
+    drawBorderRadiusCorner({prefix: ' L ', cornerPosition: bombAroundCornerCoordinates.left.topLeft, layoutConfig, direction: 'topLeft'}) +
+    drawBorderRadiusCorner({prefix: ' L ', cornerPosition: bombAroundCornerCoordinates.left.topRight, layoutConfig, direction: 'topLeft', isInnerCorner: true}) +
     ' Z'
   }else if(bombAroundCornerCoordinates.top && bombAroundCornerCoordinates.right) {
-    return 'M ' + bombAroundCornerCoordinates.top.topLeft.left + ' ' + bombAroundCornerCoordinates.top.topLeft.top +
-    ' L ' + bombAroundCornerCoordinates.top.topRight.left + ' ' + bombAroundCornerCoordinates.top.topRight.top +
-    ' L ' + bombAroundCornerCoordinates.top.bottomRight.left + ' ' + bombAroundCornerCoordinates.top.bottomRight.top +
-    ' L ' + bombAroundCornerCoordinates.right.topLeft.left + ' ' + bombAroundCornerCoordinates.right.topLeft.top +
-    ' L ' + bombAroundCornerCoordinates.right.topRight.left + ' ' + bombAroundCornerCoordinates.right.topRight.top +
-    ' L ' + bombAroundCornerCoordinates.right.bottomRight.left + ' ' + bombAroundCornerCoordinates.right.bottomRight.top +
-    ' L ' + bombCornerCoordinates.bottomLeft.left + ' ' + bombCornerCoordinates.bottomLeft.top +
+    //  _______
+    //  |     |
+    //  |     |______
+    //  |           |
+    //  |___________|
+    return drawBorderRadiusCorner({prefix: 'M ', cornerPosition: bombAroundCornerCoordinates.top.topLeft, layoutConfig, direction: 'topLeft'}) +
+    drawBorderRadiusCorner({prefix: ' L ', cornerPosition: bombAroundCornerCoordinates.top.topRight, layoutConfig, direction: 'topRight'}) +
+    drawBorderRadiusCorner({prefix: ' L ', cornerPosition: bombAroundCornerCoordinates.top.bottomRight, layoutConfig, direction: 'topRight', isInnerCorner: true}) +
+    drawBorderRadiusCorner({prefix: ' L ', cornerPosition: bombAroundCornerCoordinates.right.topRight, layoutConfig, direction: 'topRight'}) +
+    drawBorderRadiusCorner({prefix: ' L ', cornerPosition: bombAroundCornerCoordinates.right.bottomRight, layoutConfig, direction: 'bottomRight'}) +
+    drawBorderRadiusCorner({prefix: ' L ', cornerPosition: bombCornerCoordinates.bottomLeft, layoutConfig, direction: 'bottomLeft'}) +
     ' Z'
   }else if (bombAroundCornerCoordinates.top && bombAroundCornerCoordinates.bottom) {
-    return 'M ' + bombAroundCornerCoordinates.top.topLeft.left + ' ' + bombAroundCornerCoordinates.top.topLeft.top +
-    ' L ' + bombAroundCornerCoordinates.top.topRight.left + ' ' + bombAroundCornerCoordinates.top.topRight.top +
-    ' L ' + bombAroundCornerCoordinates.bottom.bottomRight.left + ' ' + bombAroundCornerCoordinates.bottom.bottomRight.top +
-    ' L ' + bombAroundCornerCoordinates.bottom.bottomLeft.left + ' ' + bombAroundCornerCoordinates.bottom.bottomLeft.top +
+    //  _______
+    //  |     |
+    //  |     |
+    //  |     |
+    //  |     |
+    //  |_____|
+    return drawBorderRadiusCorner({prefix: 'M ', cornerPosition: bombAroundCornerCoordinates.top.topLeft, layoutConfig, direction: 'topLeft' }) + 
+    drawBorderRadiusCorner({prefix: ' L ', cornerPosition: bombAroundCornerCoordinates.top.topRight, layoutConfig, direction: 'topRight' }) +
+    drawBorderRadiusCorner({prefix: ' L ', cornerPosition: bombAroundCornerCoordinates.bottom.bottomRight, layoutConfig, direction: 'bottomRight' }) +
+    drawBorderRadiusCorner({prefix: ' L ', cornerPosition: bombAroundCornerCoordinates.bottom.bottomLeft, layoutConfig, direction: 'bottomLeft' }) +
     ' Z'
   }else if(bombAroundCornerCoordinates.left && bombAroundCornerCoordinates.bottom) {
-    return 'M ' + bombAroundCornerCoordinates.left.topLeft.left + ' ' + bombAroundCornerCoordinates.left.topLeft.top +
-    ' L ' + bombCornerCoordinates.topRight.left + ' ' + bombCornerCoordinates.topRight.top +
-    ' L ' + bombAroundCornerCoordinates.bottom.bottomRight.left + ' ' + bombAroundCornerCoordinates.bottom.bottomRight.top +
-    ' L ' + bombAroundCornerCoordinates.bottom.bottomLeft.left + ' ' + bombAroundCornerCoordinates.bottom.bottomLeft.top +
-    ' L ' + bombAroundCornerCoordinates.bottom.topLeft.left + ' ' + bombAroundCornerCoordinates.bottom.topLeft.top +
-    ' L ' + bombAroundCornerCoordinates.left.bottomRight.left + ' ' + bombAroundCornerCoordinates.left.bottomRight.top +
-    ' L ' + bombAroundCornerCoordinates.left.bottomLeft.left + ' ' + bombAroundCornerCoordinates.left.bottomLeft.top +
+    //  ____________
+    // |            |
+    // |______      |
+    //        |     |
+    //        |_____|
+    return drawBorderRadiusCorner({prefix: 'M ', cornerPosition: bombAroundCornerCoordinates.left.topLeft, layoutConfig, direction: 'topLeft'}) +
+    drawBorderRadiusCorner({prefix: ' L ', cornerPosition: bombCornerCoordinates.topRight, layoutConfig, direction: 'topRight'}) +
+    drawBorderRadiusCorner({prefix: ' L ', cornerPosition: bombAroundCornerCoordinates.bottom.bottomRight, layoutConfig, direction: 'bottomRight'}) +
+    drawBorderRadiusCorner({prefix: ' L ', cornerPosition: bombAroundCornerCoordinates.bottom.bottomLeft, layoutConfig, direction: 'bottomLeft'}) +
+    drawBorderRadiusCorner({prefix: ' L ', cornerPosition: bombAroundCornerCoordinates.bottom.topLeft, layoutConfig, direction: 'bottomLeft', isInnerCorner: true}) +
+    drawBorderRadiusCorner({prefix: ' L ', cornerPosition: bombAroundCornerCoordinates.left.bottomLeft, layoutConfig, direction: 'bottomLeft'}) +
     ' Z'
   }else if (bombAroundCornerCoordinates.right && bombAroundCornerCoordinates.bottom) {
-    return 'M ' + bombCornerCoordinates.topLeft.left + ' ' + bombCornerCoordinates.topLeft.top +
-    ' L ' + bombAroundCornerCoordinates.right.topRight.left + ' ' + bombAroundCornerCoordinates.right.topRight.top +
-    ' L ' + bombAroundCornerCoordinates.right.bottomRight.left + ' ' + bombAroundCornerCoordinates.right.bottomRight.top +
-    ' L ' + bombAroundCornerCoordinates.right.bottomLeft.left + ' ' + bombAroundCornerCoordinates.right.bottomLeft.top +
-    ' L ' + bombAroundCornerCoordinates.bottom.topRight.left + ' ' + bombAroundCornerCoordinates.bottom.topRight.top +
-    ' L ' + bombAroundCornerCoordinates.bottom.bottomRight.left + ' ' + bombAroundCornerCoordinates.bottom.bottomRight.top +
-    ' L ' + bombAroundCornerCoordinates.bottom.bottomLeft.left + ' ' + bombAroundCornerCoordinates.bottom.bottomLeft.top +
+    // ____________
+    // |            |
+    // |      ______|
+    // |     |
+    // |_____|
+    return drawBorderRadiusCorner({prefix: 'M ', cornerPosition: bombCornerCoordinates.topLeft, layoutConfig, direction: 'topLeft'}) +
+    drawBorderRadiusCorner({prefix: ' L ', cornerPosition: bombAroundCornerCoordinates.right.topRight, layoutConfig, direction: 'topRight'}) +
+    drawBorderRadiusCorner({prefix: ' L ', cornerPosition: bombAroundCornerCoordinates.right.bottomRight, layoutConfig, direction: 'bottomRight'}) +
+    drawBorderRadiusCorner({prefix: ' L ', cornerPosition: bombAroundCornerCoordinates.right.bottomLeft, layoutConfig, direction: 'bottomRight', isInnerCorner: true}) +
+    drawBorderRadiusCorner({prefix: ' L ', cornerPosition: bombAroundCornerCoordinates.bottom.bottomRight, layoutConfig, direction: 'bottomRight'}) +
+    drawBorderRadiusCorner({prefix: ' L ', cornerPosition: bombAroundCornerCoordinates.bottom.bottomLeft, layoutConfig, direction: 'bottomLeft'}) +
     ' Z'
   }else if(bombAroundCornerCoordinates.left && bombAroundCornerCoordinates.right) {
-    return 'M ' + bombAroundCornerCoordinates.left.bottomLeft.left + ' ' + bombAroundCornerCoordinates.left.bottomLeft.top +
-    ' L ' + bombAroundCornerCoordinates.left.topLeft.left + ' ' + bombAroundCornerCoordinates.left.topLeft.top +
-    ' L ' + bombAroundCornerCoordinates.right.topRight.left + ' ' + bombAroundCornerCoordinates.right.topRight.top +
-    ' L ' + bombAroundCornerCoordinates.right.bottomRight.left + ' ' + bombAroundCornerCoordinates.right.bottomRight.top +
+    // ______.______.____
+    // |                 |
+    // |______.______.___|
+    return drawBorderRadiusCorner({prefix: 'M ', cornerPosition: bombAroundCornerCoordinates.left.topLeft, layoutConfig, direction: 'topLeft'}) +
+    drawBorderRadiusCorner({prefix: ' L ', cornerPosition: bombAroundCornerCoordinates.right.topRight, layoutConfig, direction: 'topRight'}) +
+    drawBorderRadiusCorner({prefix: ' L ', cornerPosition: bombAroundCornerCoordinates.right.bottomRight, layoutConfig, direction: 'bottomRight'}) +
+    drawBorderRadiusCorner({prefix: ' L ', cornerPosition: bombAroundCornerCoordinates.left.bottomLeft, layoutConfig, direction: 'bottomLeft'}) +
+    ' Z'
+  }else if(bombAroundCornerCoordinates.left) {
+    // ______.______
+    // |            |
+    // |______._____|
+    return drawBorderRadiusCorner({prefix: 'M ', cornerPosition: bombAroundCornerCoordinates.left.topLeft, layoutConfig, direction: 'topLeft'}) +
+    drawBorderRadiusCorner({prefix: ' L ', cornerPosition: bombCornerCoordinates.topRight, layoutConfig, direction: 'topRight'}) +
+    drawBorderRadiusCorner({prefix: ' L ', cornerPosition: bombCornerCoordinates.bottomRight, layoutConfig, direction: 'bottomRight'}) +
+    drawBorderRadiusCorner({prefix: ' L ', cornerPosition: bombAroundCornerCoordinates.left.bottomLeft, layoutConfig, direction: 'bottomLeft'}) +
+    ' Z'
+  }else if(bombAroundCornerCoordinates.top) {
+    //  ______
+    // |      |
+    // |.    .|
+    // |      |
+    // |______|
+    return drawBorderRadiusCorner({prefix: 'M ', cornerPosition: bombAroundCornerCoordinates.top.topLeft, layoutConfig, direction: 'topLeft'}) +
+    drawBorderRadiusCorner({prefix: ' L ', cornerPosition: bombAroundCornerCoordinates.top.topRight, layoutConfig, direction: 'topRight'}) +
+    drawBorderRadiusCorner({prefix: ' L ', cornerPosition: bombCornerCoordinates.bottomRight, layoutConfig, direction: 'bottomRight'}) +
+    drawBorderRadiusCorner({prefix: ' L ', cornerPosition: bombCornerCoordinates.bottomLeft, layoutConfig, direction: 'bottomLeft'}) +
+    ' Z'
+  }else if(bombAroundCornerCoordinates.right) {
+    // ______.______
+    // |            |
+    // |______._____|
+    return drawBorderRadiusCorner({prefix: 'M ', cornerPosition: bombCornerCoordinates.topLeft, layoutConfig, direction: 'topLeft'}) +
+    drawBorderRadiusCorner({prefix: ' L ', cornerPosition: bombAroundCornerCoordinates.right.topRight, layoutConfig, direction: 'topRight'}) +
+    drawBorderRadiusCorner({prefix: ' L ', cornerPosition: bombAroundCornerCoordinates.right.bottomRight, layoutConfig, direction: 'bottomRight'}) +
+    drawBorderRadiusCorner({prefix: ' L ', cornerPosition: bombCornerCoordinates.bottomLeft, layoutConfig, direction: 'bottomLeft'}) +
+    ' Z'
+  }else if(bombAroundCornerCoordinates.bottom) {
+    //  ______
+    // |      |
+    // |.    .|
+    // |      |
+    // |______|
+    return drawBorderRadiusCorner({prefix: 'M ', cornerPosition: bombCornerCoordinates.topLeft, layoutConfig, direction: 'topLeft'}) +
+    drawBorderRadiusCorner({prefix: ' L ', cornerPosition: bombCornerCoordinates.topRight, layoutConfig, direction: 'topRight'}) +
+    drawBorderRadiusCorner({prefix: ' L ', cornerPosition: bombAroundCornerCoordinates.bottom.bottomRight, layoutConfig, direction: 'bottomRight'}) +
+    drawBorderRadiusCorner({prefix: ' L ', cornerPosition: bombAroundCornerCoordinates.bottom.bottomLeft, layoutConfig, direction: 'bottomLeft'}) +
     ' Z'
   }
   return '';
