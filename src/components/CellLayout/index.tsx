@@ -3,7 +3,9 @@ import Cell from "../Cell";
 import { cn } from "@/lib/utils";
 import useAppStore from "@/store/AppStore";
 import { useEffect, useState } from "react";
-import type { IPosition } from "@/types";
+import type { BombTilesAround, IPosition } from "@/types";
+import { drawBombEffect } from "@/utils";
+import { SQUARE_GRID_SIZE } from "@/constants";
 
 //need to make border for bomb when hover -> show the border of cells will be affected by bomb
 
@@ -19,6 +21,11 @@ export default function CellLayout() {
   const [teleportPositionState, setTeleportPositionState] = useState<
     { position: IPosition; show: boolean } | undefined
   >();
+  const [bombPositionState, setBombPositionState] = useState<
+    { position: IPosition; show: boolean } | undefined
+  >();
+  const [bombTileAround, setBombTileAround] = useState<BombTilesAround>({});
+  const [bombPath, setBombPath] = useState<string>("");
 
   function handleMouseOverCellLayout(e: MouseEvent) {
     const target = e.target as HTMLElement;
@@ -27,10 +34,49 @@ export default function CellLayout() {
         ? (JSON.parse(target.dataset?.position) as IPosition)
         : null;
       if (position) {
-        setTeleportPositionState({
-          position,
-          show: target.dataset?.type === "empty" ? true : false,
-        });
+        if (powerUpAction === "teleportATile") {
+          setTeleportPositionState({
+            position,
+            show: target.dataset?.type === "empty" ? true : false,
+          });
+        } else if (powerUpAction === "bomb") {
+          const bombTile = cells.find(
+            (cell) =>
+              cell.position.column === position.column &&
+              cell.position.row === position.row
+          );
+          if (!bombTile) return;
+          setBombPositionState({
+            position,
+            show: target.dataset?.type === "cell" ? true : false,
+          });
+          const bombTiles: BombTilesAround = {};
+          const topTile = cells.find(
+            (cell) =>
+              cell.position.row === position.row - 1 &&
+              cell.position.column === position.column
+          );
+          const bottomTile = cells.find(
+            (cell) =>
+              cell.position.row === position.row + 1 &&
+              cell.position.column === position.column
+          );
+          const leftTile = cells.find(
+            (cell) =>
+              cell.position.row === position.row &&
+              cell.position.column === position.column - 1
+          );
+          const rightTile = cells.find(
+            (cell) =>
+              cell.position.row === position.row &&
+              cell.position.column === position.column + 1
+          );
+          if (topTile) bombTiles.top = topTile.position;
+          if (bottomTile) bombTiles.bottom = bottomTile.position;
+          if (leftTile) bombTiles.left = leftTile.position;
+          if (rightTile) bombTiles.right = rightTile.position;
+          setBombTileAround(bombTiles);
+        }
       }
     }
   }
@@ -50,7 +96,10 @@ export default function CellLayout() {
   useEffect(() => {
     const cellLayout = document.getElementById("cell-layout");
 
-    if (powerUpAction === "teleportATile" && tileToTeleport) {
+    if (
+      (powerUpAction === "teleportATile" && tileToTeleport) ||
+      powerUpAction === "bomb"
+    ) {
       if (cellLayout) {
         cellLayout.addEventListener("mouseover", handleMouseOverCellLayout);
       }
@@ -60,9 +109,23 @@ export default function CellLayout() {
       if (cellLayout) {
         cellLayout.removeEventListener("mouseover", handleMouseOverCellLayout);
         setTeleportPositionState(undefined);
+        setBombTileAround({});
+        setBombPositionState(undefined);
+        setBombPath("");
       }
     };
   }, [powerUpAction, tileToTeleport]);
+
+  useEffect(() => {
+    if (bombPositionState) {
+      const path = drawBombEffect(
+        bombPositionState.position,
+        bombTileAround,
+        layout
+      );
+      setBombPath(path);
+    }
+  }, [bombTileAround, bombPositionState]);
 
   return (
     <section
@@ -115,6 +178,35 @@ export default function CellLayout() {
             className="hidden lg:block absolute bg-transparent rounded-xl border-[2.5px] border-white"
             onClick={handleClickEmptyCell}
           ></motion.div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {bombPositionState?.position && (
+          <motion.svg
+            key={"bombPath"}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            style={{
+              height:
+                layout.cellSize * SQUARE_GRID_SIZE +
+                layout.layoutSpacing * (SQUARE_GRID_SIZE + 1) +
+                "px",
+              width:
+                layout.cellSize * SQUARE_GRID_SIZE +
+                layout.layoutSpacing * (SQUARE_GRID_SIZE + 1) +
+                "px",
+            }}
+            className="pointer-events-none absolute top-0 left-0"
+          >
+            <path
+              d={bombPath}
+              stroke="white"
+              strokeWidth="2"
+              fill="transparent"
+            />
+          </motion.svg>
         )}
       </AnimatePresence>
 
