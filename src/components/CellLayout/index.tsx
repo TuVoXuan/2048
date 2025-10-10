@@ -198,7 +198,7 @@ export default function CellLayout() {
                 layout.layoutSpacing * (SQUARE_GRID_SIZE + 1) +
                 "px",
             }}
-            className="pointer-events-none absolute top-0 left-0"
+            className="hidden lg:block pointer-events-none absolute top-0 left-0"
           >
             <path
               d={bombPath}
